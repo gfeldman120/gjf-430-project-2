@@ -5,6 +5,51 @@ const makerPage = async (req, res) => {
     res.render('app');
 };
 
+// Make a picture
+const makePicture = async (req, res) => {
+    // Required fields
+    if(!req.body.name || !req.body.image || !req.body.size || !req.body.mimetype) {
+        return res.status(400).json({ error: 'All fields are required!' });
+    }
+    const pictureData = {
+        name: req.body.name,
+        image: req.body.image,
+        size: req.body.size,
+        mimetype: req.body.mimetype,
+        owner: req.session.account._id,
+    };
+    // Optional fields
+    if(req.body.description) {
+        pictureData.description = req.body.description;
+    }
+    if(req.body.tags) {
+        picture.tags = req.body.tags;
+    }
+    try {
+        const newPicture = new Picture(pictureData);
+        await newPicture.save();
+        return res.status(201).json({
+            name: newPicture.name,
+            image: newPicture.image,
+            size: newPicture.size,
+            mimetype: newPicture.mimetype,
+            description: newPicture.description,
+            tags: newPicture.tags,
+            likes: newPicture.likes,
+            public: newPicture.public,
+            owner: newPicture.owner,
+            createdDate: newPicture.createdDate,
+        });
+    } catch (err) {
+        console.log(err);
+        // If both name and image are the same, duplicate
+        if(err.code === 11000) {
+            return res.status(400).json({ error: 'Picture already exists!' });
+        }
+        return res.status(500).json({ error: 'An error occured making the picture!' });
+    }
+}
+
 // Get the photos from the current user,
 const getMyPictures = async (req, res) => {
     try {
@@ -89,51 +134,29 @@ const getPictureData = async (req, res) => {
     }
 }
 
-const makeDomo = async (req, res) => {
-    if(!req.body.name || !req.body.age || !req.body.level) {
-        return res.status(400).json({ error: 'Name, age and level are required!' });
-    }
-
-    const domoData = {
-        name: req.body.name,
-        age: req.body.age,
-        level: req.body.level,
-        owner: req.session.account._id,
-    };
-
-    try {
-        const newDomo = new Domo(domoData);
-        await newDomo.save();
-        return res.status(201).json({ name: newDomo.name, age: newDomo.age, level: newDomo.level });
-    } catch (err) {
-        console.log(err);
-        if(err.code === 11000) {
-            return res.status(400).json({ error: 'Domo already exists!' });
-        }
-        return res.status(500).json({ error: 'An error occured making domo!' });
-    }
-}
-
-const deleteDomo = async (req, res) => {
+// Delete a picture
+const deletePicture = async (req, res) => {
     try {
         const query = { 
             owner: req.session.account._id,
             _id: req.body._id,
-        };
-        const deletedDomo = await Domo.findOneAndDelete(query);
-        if (deletedDomo) {
-            return res.status(200).json({ message: "Deleted Domo successfully!" });
         }
-        return res.status(404).json({ error: "Domo not found!" });
+        const deletedPicture = await Picture.findOneAndDelete(query);
+        if (deletedPicture) {
+            return res.status(200).json({ message: "Deleted Picture successfully!" });
+        }
+        return res.status(404).json({ error: "Picture not found!" });
     } catch (err) {
         console.log(err);
-        return res.status(500).json({ error: 'Error deleting Domo!' });
+        return res.status(500).json({ error: 'Error deleting Picture!' });
     }
 }
 
 module.exports = {
     makerPage,
-    getDomos,
-    makeDomo,
-    deleteDomo,
+    makePicture,
+    getMyPictures,
+    getPictures,
+    getPictureData,
+    deletePicture,
 };

@@ -30,12 +30,10 @@ const PictureSchema = new mongoose.Schema({
     },
     likes: {
         type: [mongoose.Schema.ObjectId],
-        required: true,
         default: []
     },
     public: {
         type: Boolean,
-        required: true,
         default: true
     },
     owner: {
@@ -61,6 +59,10 @@ PictureSchema.statics.toAPI = (doc) => ({
     owner: doc.owner,
     createdDate: doc.createdDate
 });
+
+// Pictures are duplicates if they have the same name AND image
+// Documentation: https://mongoosejs.com/docs/api/schema.html#Schema.prototype.index()
+PictureSchema.index({ name: 1, image: 1 }, { unique: true });
 
 const PictureModel = mongoose.model('Picture', PictureSchema)
 module.exports = PictureModel;
