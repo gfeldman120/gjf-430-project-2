@@ -123,11 +123,67 @@ const getPictures= async (req, res) => {
 const getPictureData = async (req, res) => {
     try {
         const query = {
-            name: req.query.name
+            _id: req.body._id,
         };
         // Rest of function
         const pictureData = await Picture.find(query).lean().exec();
         return res.json({ pictureData });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: 'Error retrieving picture data!' });
+    }
+}
+
+// Like or unlike an image
+const likePicture = async (req, res) => {
+    try {
+        const query = {
+            _id: req.body._id,
+        };
+        // No lean(), need to keep this in Mongo's format to update it
+        const picture = await Picture.find(query).exec();
+        if(!picture) {
+            return res.status(400).json({ error: "Picture not found!" });
+        }
+        // If the user has liked, remove like, otherwise add like
+        // .some() is akin to something like .contains() (Documentation: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
+        let liked = false;
+        if(picture.likes.some((id) => id.equals(req.session.account._id))) {
+            await Picture.updateOne(
+                { _id: picture._id },
+                // $pull removes the value from the field (Documentation: https://www.mongodb.com/docs/manual/reference/operator/update/pull/)
+                { $pull: { likes: req.session.account._id } },
+            );
+        }
+        else {
+            await Picture.updateOne(
+                { _id: picture._id },
+                // $addToSet does the opposite of $pull and adds to the field (Documentation: https://www.mongodb.com/docs/manual/reference/operator/update/addtoset/#mongodb-update-up.-addToSet)
+                { $addToSet: { likes: req.session.account._id } },
+            );
+            liked = true;
+        }
+        // Return whether or not this one is liked, used to update the like button
+        return res.status(201).json({ liked });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: 'Error retrieving picture data!' });
+    }
+}
+
+// Get whether a picture is liked or not
+const getLiked = async (req, res) => {
+    try {
+        const query = {
+            _id: req.query._id,
+        };
+        // No lean(), need to keep this in Mongo's format to update it
+        const picture = await Picture.find(query).exec();
+        if(!picture) {
+            return res.status(400).json({ error: "Picture not found!" });
+        }
+        // Return whether or not this one is liked, used to update the like button
+        return res.status(200).json({ liked: picture.likes.some((id) => id.equals(req.session.account._id)) });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'Error retrieving picture data!' });
@@ -158,5 +214,7 @@ module.exports = {
     getMyPictures,
     getPictures,
     getPictureData,
+    likePicture,
+    getLiked,
     deletePicture,
 };
