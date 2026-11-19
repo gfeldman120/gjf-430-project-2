@@ -2,9 +2,9 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        app: './client/maker.jsx',
+        app: './client/mainPage.jsx',
         login: './client/login.jsx',
-        account: './client/account.jsx',
+        account: './client/accountPage.jsx',
     },
     module: {
         rules: [
@@ -24,5 +24,12 @@ module.exports = {
     output: {
         path: path.resolve(__dirname, 'hosted'),
         filename: '[name]Bundle.js',
+    },
+    // Used https://webpack.js.org/plugins/split-chunks-plugin
+    // This splits bundles into chunks, allowing shared.jsx to remain seperate (instead of being copied into ALL of the other bundles)
+    optimization: {
+        splitChunks: {
+            chunks: 'all',
+        },
     },
 };

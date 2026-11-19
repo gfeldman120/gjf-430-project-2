@@ -1,6 +1,10 @@
 const helper = require('./helper.js');
+const shared = require('./shared.jsx');
 const React = require('react');
-const {createRoot} = require('react-dom/client');
+const { useState, useEffect } = React;
+const { createRoot } = require('react-dom/client');
+// Root is defined here to allow functions to access it
+let root;
 
 const handleChangePassword = (e) => {
     const pass = e.target.querySelector('#pass').value;
@@ -36,31 +40,7 @@ const ChangePasswordWindow = (props) => {
 }
 
 const init = () => {
-    const loginButton = document.getElementById('loginButton');
-    const signupButton = document.getElementById('signupButton');
-    const changePasswordButton = document.getElementById('changePasswordButton');
-
-    const root = createRoot(document.getElementById('content'));
-
-    loginButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        root.render(<LoginWindow/>);
-        return false;
-    });
-
-    signupButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        root.render(<SignupWindow/>);
-        return false;
-    });
-
-    changePasswordButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        root.render(<ChangePasswordWindow/>);
-        return false;
-    });
-
-    root.render(<LoginWindow/>);
+    root = createRoot(document.getElementById('content'));
 }
 
 window.onload = init;

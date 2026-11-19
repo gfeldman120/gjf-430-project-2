@@ -1,7 +1,8 @@
 const helper = require('./helper.js');
 const shared = require('./shared.jsx');
 const React = require('react');
-const {createRoot} = require('react-dom/client');
+const { useState, useEffect } = React;
+const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
 
@@ -51,7 +52,7 @@ const LoginWindow = (props) => {
                 <input id="pass" type="password" name="pass" placeholder="password"/>
                 <input className="formSubmit" type="submit" value="Sign in"/>
             </form>
-            <button type="button" onClick={() => root.render(<shared.Page content={<SignupWindow/>}/>)}>Create An Account</button>
+            <button type="button" onClick={() => shared.renderPage(root, <SignupWindow/>)}>Create An Account</button>
         </>
     );
 }
@@ -68,14 +69,14 @@ const SignupWindow = (props) => {
                 <input id="pass2" type="password" name="pass2" placeholder="retype password"/>
                 <input className="formSubmit" type="submit" value="Sign in"/>
             </form>
-            <button type="button" onClick={() => root.render(<shared.Page content={<LoginWindow/>}/>)}>Use An Existing Account</button>
+            <button type="button" onClick={() => shared.renderPage(root, <LoginWindow/>)}>Use An Existing Account</button>
         </>
     );
 }
 
 const init = () => {
     root = createRoot(document.getElementById('application'));
-    root.render(<shared.Page content={<LoginWindow/>}/>);
+    shared.renderPage(root, <LoginWindow/>);
 }
 
 window.onload = init;

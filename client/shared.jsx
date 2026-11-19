@@ -5,7 +5,7 @@ const { useState, useEffect } = React;
 // Link to the main page, reused across both navigation bar versions
 const HomeLink = (props) => {
     return (
-        <div class="navlink"><a href="/mainPage">Home</a></div>
+        <div className="navlink"><a href="/mainPage">Home</a></div>
     );
 }
 
@@ -13,7 +13,7 @@ const HomeLink = (props) => {
 const Navigation = (props) => {
     const [loggedIn, setLoggedIn] = useState(false);
 
-    // Default to not logged in, re-render if loggedIn changes (if request succeeds and returns loggedIn being true)
+    // Default to not logged in and renders as such upon mounting, re-renders if loggedIn changes (if request succeeds and returns loggedIn being true)
     useEffect(() => {
         const getLoggedInFromServer = async () => {
             const response = await fetch ('/getLoggedIn');
@@ -21,14 +21,14 @@ const Navigation = (props) => {
             setLoggedIn(data.loggedIn);
         }
         getLoggedInFromServer();
-    }, [loggedIn]);
+    }, []);
 
     if(loggedIn) {
         return (
             <nav>
                 <HomeLink/>
-                <div class="navlink"><a href="/accountPage">Account</a></div>
-                <div class="navlink"><a href="/logout">Log out</a></div>
+                <div className="navlink"><a href="/accountPage">Account</a></div>
+                <div className="navlink"><a href="/logout">Log out</a></div>
             </nav>
         );
     }
@@ -36,7 +36,7 @@ const Navigation = (props) => {
         return (
             <nav>
                 <HomeLink/>
-                <div class="navlink"><a id="loginButton" href="/loginPage">Login/Signup</a></div>
+                <div className="navlink"><a id="loginButton" href="/loginPage">Login/Signup</a></div>
             </nav>
         );
     }
@@ -52,6 +52,11 @@ const Page = (props) => {
     );
 }
 
+// Make using Page easier to read
+const renderPage = (root, content) => {
+    root.render(<Page content={content}/>);
+}
+
 module.exports = {
-    Page,
+    renderPage,
 }

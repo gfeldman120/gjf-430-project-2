@@ -3,6 +3,8 @@ const shared = require('./shared.jsx');
 const React = require('react');
 const { useState, useEffect } = React;
 const { createRoot } = require('react-dom/client');
+// Root is defined here to allow functions to access it
+let root;
 
 const handleDomo = (e, onDomoAdded) => {
     e.preventDefault();
