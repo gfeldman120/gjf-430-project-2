@@ -25,8 +25,8 @@ const Navigation = (props) => {
         return (
             <nav>
                 <HomeLink/>
-                <div class="navlink"><a href="/logout">Log out</a></div>
                 <div class="navlink"><a href="/accountPage">Account</a></div>
+                <div class="navlink"><a href="/logout">Log out</a></div>
             </nav>
         );
     }
@@ -34,15 +34,20 @@ const Navigation = (props) => {
         return (
             <nav>
                 <HomeLink/>
-                <div class="navlink"><a id="loginButton" href="/loginPage">Login</a></div>
-                <div class="navlink"><a id="signupButton" href="/signupPage">Sign up</a></div>
+                <div class="navlink"><a id="loginButton" href="/loginPage">Login/Signup</a></div>
             </nav>
         );
     }
 }
 
-const Navigation
+// Using Page for consistent elements across pages
+const Page = (props) => {
+    return (
+        <Navigation/>
+        {props.content}
+    );
+}
 
 module.exports = {
-    Navigation,
+    Page,
 }

@@ -24,7 +24,6 @@ const router = (app) => {
     app.get('/mainPage', mid.requiresSecure, controllers.Picture.mainPage);
     app.get('/accountPage', mid.requiresLogin, controllers.Account.accountPage);
     app.get('/loginPage', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
-    app.get('/signupPage', mid.requiresSecure, mid.requiresLogout, controllers.Account.signupPage);
     app.get('/', mid.requiresSecure, controllers.Picture.mainPage);
 };
 module.exports = router;
