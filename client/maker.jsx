@@ -86,17 +86,27 @@ const DomoList = (props) => {
     );
 }
 
+// const App = () => {
+//     const [reloadDomos, setReloadDomos] = useState(false);
+
+//     return (
+//         <div>
+//             <div id="makeDomo">
+//                 <DomoForm triggerReload={() => setReloadDomos(!reloadDomos)}/>
+//             </div>
+//             <div id="domos">
+//                 <DomoList triggerReload={() => setReloadDomos(!reloadDomos)} domos={[]} reloadDomos={reloadDomos}/>
+//             </div>
+//         </div>
+//     );
+// }
+
 const App = () => {
-    const [reloadDomos, setReloadDomos] = useState(false);
+    const [reloadPictures, setReloadPictures] = useState(false);
 
     return (
         <div>
-            <div id="makeDomo">
-                <DomoForm triggerReload={() => setReloadDomos(!reloadDomos)}/>
-            </div>
-            <div id="domos">
-                <DomoList triggerReload={() => setReloadDomos(!reloadDomos)} domos={[]} reloadDomos={reloadDomos}/>
-            </div>
+        
         </div>
     );
 }
