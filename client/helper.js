@@ -26,6 +26,28 @@ const sendPost = async (url, data, handler) => {
   }
 }
 
+const sendGet = async (url, query, handler) => {
+  const response = await fetch(`${url}${query.toString()}`, {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  const result = await response.json();
+
+  if(result.redirect) {
+    window.location = result.redirect;
+  }
+
+  if(result.error) {
+    handleError(result.error);
+  }
+
+  if(handler) {
+    handler(result);
+  }
+}
+
 module.exports = {
     handleError,
     sendPost,

@@ -6,117 +6,149 @@ const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
 
-const handleDomo = (e, onDomoAdded) => {
+// const handleDomo = (e, onDomoAdded) => {
+//     e.preventDefault();
+//     helper.hideError();
+
+//     const name = e.target.querySelector('#domoName').value;
+//     const age = e.target.querySelector('#domoAge').value;
+//     const level = e.target.querySelector('#domoLevel').value;
+
+//     if(!name || !age || !level) {
+//         helper.handleError('All fields are required!');
+//         return false;
+//     }
+
+//     helper.sendPost(e.target.action, {name, age, level}, onDomoAdded);
+//     return false;
+// }
+
+// const handleDelete = (e, onDomoDeleted, _id) => {
+//     e.preventDefault();
+//     helper.hideError();
+//     helper.sendPost('/deleteDomo', { _id }, onDomoDeleted);
+//     return false;
+// }
+
+const handleSearch = async (e, onPicturesGot) => {
     e.preventDefault();
-    helper.hideError();
 
-    const name = e.target.querySelector('#domoName').value;
-    const age = e.target.querySelector('#domoAge').value;
-    const level = e.target.querySelector('#domoLevel').value;
+    const name = e.target.querySelector("#pictureName").value.trim();
+    // Tags should split on ',', ignore all spaces and remove # (despite display), also removes tags that don't exist following this
+    const tags = e.target.querySelector("#pictureTags").split(',').map(tag => tag.trim().replace('#', '')).filter(tag => tag.length > 0);
+    const minLikes = e.target.querySelector("#pictureMinLikes").value;
+    const date = e.target.querySelector("#pictureDate").value;
+    const dateFilter = e.target.querySelector("#pictureDateFilter").value;
+    const order = e.target.querySelector("#pictureOrder").value;
 
-    if(!name || !age || !level) {
-        helper.handleError('All fields are required!');
-        return false;
+    // Adding parameters to query, only if they apply
+    // Used https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams/append to learn how to append after making the URLSearchParams object
+    const params = new URLSearchParams();
+    if(name.length > 0) {
+        params.append("name", name);
     }
+    if(tags.length > 0) {
+        params.append("tags", tags);
+    }
+    if(minLikes > 0) {
+        params.append("minLikes", minLikes);
+    }
+    if(date && dateFilter.length > 0) {
+        params.append("date", date);
+        params.append("dateFilter", date);
+    }
+    order.append("order", order);
 
-    helper.sendPost(e.target.action, {name, age, level}, onDomoAdded);
+    helper.sendGet(e.target.action, params, onPicturesGot);
     return false;
 }
 
-const handleDelete = (e, onDomoDeleted, _id) => {
-    e.preventDefault();
-    helper.hideError();
-    helper.sendPost('/deleteDomo', { _id }, onDomoDeleted);
-    return false;
-}
-
-const DomoForm = (props) => {
+const PictureSearch = (props) => {
+    // Used https://www.w3schools.com/tags/tag_select.asp to figure out select
     return(
-        <form id="domoForm"
-            onSubmit={(e) => handleDomo(e, props.triggerReload)}
-            name="domoForm"
-            action="/maker"
-            method="POST"
-            className="domoForm"
+        <form id="pictureSearch"
+            onSubmit={() => handleSearch(e, props.triggerReload)}
+            name="pictureSearch"
+            action="/getPictures"
+            method="GET"
+            className="pictureSearch"
         >
-            <label htmlFor="domoName">Name: </label>
-            <input id="domoName" type="text" name="name" placeholder="Domo Name"/>
-            <label htmlFor="domoAge">Age: </label>
-            <input id="domoAge" type="number" min="0" name="age"/>
-            <label htmlFor="domoLevel">Level: </label>
-            <input id="domoLevel" type="number" min="1" max="99" name="level"/>
-            <input className="makeDomoSubmit" type="submit" value="Make Domo"/>
+            <label htmlFor="pictureName">Name: </label>
+            <input id="pictureName" type="text" name="name" placeholder="Picture name"/>
+            <label htmlFor="pictureTags">Tags: </label>
+            <input id="pictureTags" type="text" name="tags" placeholder="Tags, separated by commas"/>
+            <label htmlFor="pictureMinLikes">Minimum Likes: </label>
+            <input id="pictureMinLikes" type="number" min="0" name="minLikes"/>
+            <label htmlFor="pictureDate">Date: </label>
+            <input id="pictureDate" type="date" name="date"/>
+            <label htmlFor="pictureDateFilter">Filter: </label>
+            <select id="pictureDateFilter" name="dateFilter">
+                <option value="">Ignore Date</option>
+                <option value="same">Same Date</option>
+                <option value="before">Before Date</option>
+                <option value="after">After Date</option>
+            </select>
+            <label htmlFor="pictureOrder">Order: </label>
+            <select id="pictureOrder" name="order">
+                <option value="dateDescending">Date, Descending</option>
+                <option value="dateAscending">Date, Ascending</option>
+                <option value="nameA-Z">Name, A-Z</option>
+                <option value="nameZ-A">Name, Z-A</option>
+            </select>
+            <input id="pictureSubmit" type="submit" value="Search"/>
         </form>
     );
 }
 
-const DomoList = (props) => {
-    const [domos, setDomos] = useState(props.domos);
+const PictureList = (props) => {
+    const [pictures, setPictures] = useState([]);
 
     useEffect(() => {
-        const loadDomosFromServer = async () => {
-            const response = await fetch ('/getDomos');
+        const getPictures = async () => {
+            const response = await fetch ('/getPictures');
             const data = await response.json();
-            setDomos(data.domos);
+            setPictures(data);
         }
-        loadDomosFromServer();
-    }, [props.reloadDomos]);
-
-    if(domos.length === 0) {
+        getPictures();
+    }, []);
+    
+    if(pictures.length === 0) {
         return (
-            <div className="domoList">
-                <h3 className="emptyDomo">No Domos Yet!</h3>
+            <div className="pictureList">
+                <h3 className="noPictures">No pictures found.</h3>
             </div>
         );
     }
 
-    const domoNodes = domos.map(domo => {
+    const pictureList = pictures.map(picture =>{
         return (
-            <div key={domo._id} className="domo">
-                <img src="/assets/img/domoface.jpeg" alt="domo face" className="domoFace"/>
-                <h3 className="domoName">Name: {domo.name}</h3>
-                <h3 className="domoAge">Age: {domo.age}</h3>
-                <h3 className="domoLevel">Level: {domo.level}</h3>
-                <button onClick={(e) => handleDelete(e, props.triggerReload, domo._id)}>Delete Domo</button>
+            <div key={picture._id} className="picture">
+                <img src={picture.image} alt="Picture" className="pictureImg" onClick={() => shared.renderPage(root, PictureDetails(picture._id))}/>
             </div>
         );
     });
 
     return (
-        <div className="domoList">
-            {domoNodes}
-        </div>
+        <>
+            {pictureList}
+        </>
     );
 }
 
-// const App = () => {
-//     const [reloadDomos, setReloadDomos] = useState(false);
-
-//     return (
-//         <div>
-//             <div id="makeDomo">
-//                 <DomoForm triggerReload={() => setReloadDomos(!reloadDomos)}/>
-//             </div>
-//             <div id="domos">
-//                 <DomoList triggerReload={() => setReloadDomos(!reloadDomos)} domos={[]} reloadDomos={reloadDomos}/>
-//             </div>
-//         </div>
-//     );
-// }
-
-const App = () => {
+const ListApp = () => {
     const [reloadPictures, setReloadPictures] = useState(false);
 
     return (
-        <div>
-            
-        </div>
+        <>
+            <PictureSearch triggerReload={() => setReloadPictures(!reloadPictures)}/>
+            <PictureList triggerReload={() => setReloadPictures(!reloadPictures)}/>
+        </>
     );
 }
 
 const init = () => {
-    const root = createRoot(document.getElementById('app'));
-    root.render(<App/>);
+    root = createRoot(document.getElementById('content'));
+    shared.renderPage(root, ListApp);
 }
 
 window.onload = init;

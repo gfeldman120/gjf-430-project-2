@@ -63,7 +63,7 @@ const getMyPictures = async (req, res) => {
 }
 
 // Get ONLY images based on filters
-const getPictures= async (req, res) => {
+const getPictures = async (req, res) => {
     try {
         const query = {
             public: true,
@@ -91,9 +91,10 @@ const getPictures= async (req, res) => {
             }
         }
         // Likes
-        if(req.query.minLikes) {
+        const minLikes = Number(req.query.minLikes);
+        if(minLikes > 0) {
             // Get pictures >= minLikes
-            $expr: { $gte: [{ $size: "$likes" }, req.query.minLikes] }
+            query.$expr = { $gte: [{ $size: "$likes" }, minLikes] }
         }
         // Date (images before or after a given date)
         if(req.query.date && req.query.dateFilter) {
@@ -101,17 +102,39 @@ const getPictures= async (req, res) => {
             const date = new Date(req.query.date);
             // Date needs to be a valid date, turn into MS
             if(!isNaN(date.getTime())) {
-                // If not looking for images after a date, assume before
+                // If not looking for images after or before a date, assume on the date
                 if(req.query.dateFilter === 'after') {
                     query.createdDate = { $gte: date };
                 }
-                else {
+                else if(req.query.dateFilter === 'before') {
                     query.createdDate = { $lte: date };
+                }
+                else if(req.query.dateFilter === 'same') {
+                    // Need to give a full day's range, not just 1 day at midnight
+                    const nextDate = new Date(date);
+                    nextDate.setDate(date.getDate() + 1);
+                    query.createdDate = {
+                        $gte: date,
+                        $lt: nextDate,
+                    };
                 }
             }
         }
+        // "order" changes .sort(), "dateDescending" is the default value
+        let sort = { createdDate: -1 };
+        switch (req.query.order) {
+            case 'dateAscending':
+                sort = { createdDate: 1 };
+                break;
+            case 'nameA-Z':
+                sort = { name: 1 };
+                break;
+            case 'nameZ-A':
+                sort = { name: -1 };
+                break;
+        }
         // Rest of function
-        const docs = await Picture.find(query).select('image').lean().exec();
+        const docs = await Picture.find(query).select('image').sort(sort).lean().exec();
         return res.json({pictures: docs});
     } catch (err) {
         console.log(err);
