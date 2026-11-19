@@ -23,7 +23,7 @@ const makePicture = async (req, res) => {
         pictureData.description = req.body.description;
     }
     if(req.body.tags) {
-        picture.tags = req.body.tags;
+        pictureData.tags = req.body.tags;
     }
     try {
         const newPicture = new Picture(pictureData);
