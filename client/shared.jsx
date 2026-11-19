@@ -43,8 +43,10 @@ const Navigation = (props) => {
 // Using Page for consistent elements across pages
 const Page = (props) => {
     return (
-        <Navigation/>
-        {props.content}
+        <>
+            <Navigation/>
+            {props.content}
+        </>
     );
 }
 
