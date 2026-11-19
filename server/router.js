@@ -3,7 +3,7 @@ const mid = require('./middleware');
 const router = (app) => {
     // Picture
     app.get('/getPictures', mid.requiresSecure, controllers.Picture.getPictures);
-    app.get('/getMyPictures', mid.requiresLogin, controllers.Picture.getPictures);
+    app.get('/getMyPictures', mid.requiresLogin, controllers.Picture.getMyPictures);
     app.get('/getPictureData', mid.requiresSecure, controllers.Picture.getPictureData);
     app.get('/getLiked', mid.requiresLogin, controllers.Picture.getLiked);
     
@@ -13,6 +13,7 @@ const router = (app) => {
     
     // Account
     app.get('/logout', mid.requiresLogin, controllers.Account.logout);
+    app.get('/getLoggedIn', mid.requiresSecure, controllers.Account.getLoggedIn);
     
     app.post('/signup', mid.requiresSecure, mid.requiresLogout, controllers.Account.signup);
     app.post('/login', mid.requiresSecure, mid.requiresLogout, controllers.Account.login);
@@ -22,7 +23,8 @@ const router = (app) => {
     // Pages
     app.get('/mainPage', mid.requiresSecure, controllers.Picture.mainPage);
     app.get('/accountPage', mid.requiresLogin, controllers.Account.accountPage);
-    app.get('/login', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
-    app.get('/', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
+    app.get('/loginPage', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
+    app.get('/signupPage', mid.requiresSecure, mid.requiresLogout, controllers.Account.signupPage);
+    app.get('/', mid.requiresSecure, controllers.Picture.mainPage);
 };
 module.exports = router;

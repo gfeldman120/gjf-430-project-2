@@ -1,4 +1,5 @@
 const helper = require('./helper.js');
+const shared = require('./shared.jsx');
 const React = require('react');
 const { useState, useEffect } = React;
 const { createRoot } = require('react-dom/client');
@@ -106,7 +107,7 @@ const App = () => {
 
     return (
         <div>
-
+            <shared.Navigation/>
         </div>
     );
 }

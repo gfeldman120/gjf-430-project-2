@@ -3,15 +3,19 @@ const Account = models.Account;
 
 const loginPage = (req, res) => {
     return res.render('login');
-};
+}
+
+const signupPage = (req, res) => {
+    return res.render('signup');
+}
 
 const accountPage = (req, res) => {
-    return res.render('account');
+    return res.render('accountPage');
 }
 
 const logout = (req, res) => {
     req.session.destroy();
-    return res.redirect('/');
+    return res.redirect('/mainPage');
 }
 
 const login = (req, res) => {
@@ -26,7 +30,7 @@ const login = (req, res) => {
             return res.status(401).json({ error: 'Wrong username or password!' });
         }
         req.session.account = Account.toAPI(account);
-        return res.json({ redirect: '/maker' });
+        return res.json({ redirect: '/mainPage' });
     });
 }
 
@@ -48,7 +52,7 @@ const signup = async (req, res) => {
         const newAccount = new Account({username, password: hash});
         await newAccount.save();
         req.session.account = Account.toAPI(newAccount);
-        return res.json({ redirect: '/maker' });
+        return res.json({ redirect: '/accountPage' });
     } catch (err) {
         console.log(err);
         if(err.code === 11000) {
@@ -105,12 +109,22 @@ const makePremium = async (req, res) => {
     }
 }
 
+// Check if an account is logged in
+const getLoggedIn = async (req, res) => {
+    if(req.session.account) {
+        return res.status(200).json({ loggedIn: true });
+    }
+    return res.status(200).json({ loggedIn: false });
+}
+
 module.exports = {
     loginPage,
+    signupPage,
     accountPage,
     login,
     logout,
     signup,
     changePassword,
     makePremium,
+    getLoggedIn,
 }

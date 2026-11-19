@@ -50,39 +50,19 @@ const LoginWindow = (props) => {
     );
 }
 
-const SignupWindow = (props) => {
+// Login with navigation bar
+const LoginApp = (props) => {
     return (
-        <form id="signupForm" name="signupForm" onSubmit={handleSignup} action="/signup" method="POST" className="mainForm">
-            <label htmlFor="username">Username: </label>
-            <input id="user" type="text" name="username" placeholder="username"/>
-            <label htmlFor="pass">Password: </label>
-            <input id="pass" type="password" name="pass" placeholder="password"/>
-            <label htmlFor="pass2">Password: </label>
-            <input id="pass2" type="password" name="pass2" placeholder="retype password"/>
-            <input className="formSubmit" type="submit" value="Sign in"/>
-        </form>
+        <div>
+            <shared.Navigation/>
+            <LoginWindow/>
+        </div>
     );
 }
 
 const init = () => {
-    const loginButton = document.getElementById('loginButton');
-    const signupButton = document.getElementById('signupButton');
-
-    const root = createRoot(document.getElementById('content'));
-
-    loginButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        root.render(<LoginWindow/>);
-        return false;
-    });
-
-    signupButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        root.render(<SignupWindow/>);
-        return false;
-    });
-
-    root.render(<LoginWindow/>);
+    const root = createRoot(document.getElementById('application'));
+    root.render(<LoginApp/>);
 }
 
 window.onload = init;
