@@ -2,12 +2,14 @@
 const React = require('react');
 const { useState, useEffect } = React;
 
+// Link to the main page, reused across both navigation bar versions
 const HomeLink = (props) => {
     return (
         <div class="navlink"><a href="/mainPage">Home</a></div>
     );
 }
 
+// Navigation bar, consistent across all screens
 const Navigation = (props) => {
     const [loggedIn, setLoggedIn] = useState(false);
 
@@ -40,7 +42,7 @@ const Navigation = (props) => {
     }
 }
 
-// Using Page for consistent elements across pages
+// Display a page: Surround content with elements found on every page (but not part of handlebars due to these elements being dynamic in some way)
 const Page = (props) => {
     return (
         <>

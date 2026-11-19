@@ -107,7 +107,7 @@ const App = () => {
 
     return (
         <div>
-            <shared.Navigation/>
+            
         </div>
     );
 }

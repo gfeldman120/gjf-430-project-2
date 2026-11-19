@@ -1,4 +1,5 @@
 const helper = require('./helper.js');
+const shared = require('./shared.jsx');
 const React = require('react');
 const {createRoot} = require('react-dom/client');
 // Root is defined here to allow functions to access it
