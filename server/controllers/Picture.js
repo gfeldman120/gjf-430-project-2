@@ -1,7 +1,7 @@
 const models = require('../models');
 const Picture = models.Picture;
 
-const makerPage = async (req, res) => {
+const mainPage = async (req, res) => {
     res.render('app');
 };
 
@@ -209,7 +209,7 @@ const deletePicture = async (req, res) => {
 }
 
 module.exports = {
-    makerPage,
+    mainPage,
     makePicture,
     getMyPictures,
     getPictures,

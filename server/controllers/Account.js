@@ -5,6 +5,10 @@ const loginPage = (req, res) => {
     return res.render('login');
 };
 
+const accountPage = (req, res) => {
+    return res.render('account');
+}
+
 const logout = (req, res) => {
     req.session.destroy();
     return res.redirect('/');
@@ -103,6 +107,7 @@ const makePremium = async (req, res) => {
 
 module.exports = {
     loginPage,
+    accountPage,
     login,
     logout,
     signup,
