@@ -24,7 +24,7 @@ const login = (req, res) => {
         req.session.account = Account.toAPI(account);
         return res.json({ redirect: '/maker' });
     });
-};
+}
 
 const signup = async (req, res) => {
     const username = `${req.body.username}`;
@@ -52,7 +52,7 @@ const signup = async (req, res) => {
         }
         return res.status(500).json({ error: 'An error occured!' });
     }
-};
+}
 
 // Change this account's password
 const changePassword = async (req, res) => {
@@ -81,12 +81,25 @@ const changePassword = async (req, res) => {
         const hash = await Account.generateHash(newPass);
         account.password = hash;
         await account.save();
-        return res.json({ message: "Password updated!" });
+        return res.status(201).json({ message: "Password updated!" });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'An error occured!' });
     }
-};
+}
+
+// Change this account's password
+const makePremium = async (req, res) => {
+    try {
+        const account = await Account.findById(req.session.account._id);
+        account.premium = true;
+        await account.save();
+        return res.status(201).json({ message: "Account made premium!" });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: 'An error occured!' });
+    }
+}
 
 module.exports = {
     loginPage,
@@ -94,4 +107,5 @@ module.exports = {
     logout,
     signup,
     changePassword,
+    makePremium,
 }

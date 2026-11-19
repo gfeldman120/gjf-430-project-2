@@ -20,11 +20,6 @@ const PictureSchema = new mongoose.Schema({
         required: true,
     },
     // End reference from repo
-    displayName: {
-        type: String,
-        default: () => this.name,
-        trim: true,
-    },
     description: {
         type: String,
         default: "",
@@ -59,7 +54,6 @@ PictureSchema.statics.toAPI = (doc) => ({
     image: doc.image,
     size: doc.size,
     mimetype: doc.mimetype,
-    displayName: doc.displayName,
     description: doc.description,
     tags: doc.tags,
     likes: doc.likes,
