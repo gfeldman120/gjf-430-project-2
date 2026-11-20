@@ -105,7 +105,12 @@ const PictureList = (props) => {
 
     useEffect(() => {
         const getPictures = async () => {
-            const response = await fetch ('/getPictures');
+            const response = await fetch ('/getPictures?order=dateDescending', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             const data = await response.json();
             setPictures(data);
         }
@@ -131,6 +136,45 @@ const PictureList = (props) => {
     return (
         <>
             {pictureList}
+        </>
+    );
+}
+
+const PictureDetails = (props) => {
+    const [picture, setPicture] = useState({});
+
+    useEffect(() => {
+        const getPicture = async () => {
+            const response = await fetch (`/getPictureData?_id=${props.id}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            setPicture(data);
+        }
+        getPicture();
+    }, []);
+
+    if(picture.image) {
+        return (
+            <>
+                <h1>{picture.name}</h1>
+                <img src={picture.image} alt="Picture"/>
+                <h2>{picture.owner}</h2>
+                <h2>{picture.createdDate}</h2>
+                <p>{picture.likes.length}</p>
+                <ul>
+                    {picture.tags.map(tag => <li key={tag}>{tag}</li>)}
+                </ul>
+                <p>{picture.description}</p>
+            </>
+        );
+    }
+    return (
+        <>
+            <h2>Loading picture...</h2>
         </>
     );
 }

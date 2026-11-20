@@ -6,6 +6,16 @@ const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
 
+// Taken from file upload repo
+/* <form ref='uploadForm' 
+      id='uploadForm' 
+      action='/upload' 
+      method='post' 
+      encType="multipart/form-data">
+        <input type="file" name="sampleFile" />
+        <input type='submit' value='Upload!' />
+    </form> */
+
 const handleChangePassword = (e) => {
     const pass = e.target.querySelector('#pass').value;
     const newPass = e.target.querySelector('#newPass').value;

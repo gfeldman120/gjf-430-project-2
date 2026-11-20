@@ -8,12 +8,13 @@ const mainPage = async (req, res) => {
 // Make a picture
 const makePicture = async (req, res) => {
     // Required fields
-    if(!req.body.name || !req.body.image || !req.body.size || !req.body.mimetype) {
+    if(!req.body.name || !req.body.image || req.body.size === undefined || req.body.size <= 0 || !req.body.mimetype) {
         return res.status(400).json({ error: 'All fields are required!' });
     }
+    const imageBuffer = convertToBuffer(req.body.image);
     const pictureData = {
         name: req.body.name,
-        image: req.body.image,
+        image: imageBuffer,
         size: req.body.size,
         mimetype: req.body.mimetype,
         owner: req.session.account._id,
@@ -50,16 +51,16 @@ const makePicture = async (req, res) => {
     }
 }
 
-// Get the photos from the current user,
+// Get the photos from the current user
 const getMyPictures = async (req, res) => {
-    try {
-        const query = { owner: req.session.account._id };
-        const docs = await Picture.find(query).lean().exec();
-        return res.json({pictures: docs});
-    } catch (err) {
-        console.log(err);
-        return res.status(500).json({ error: 'Error retrieving pictures!' });
-    }
+    // try {
+    //     const query = { owner: req.session.account._id };
+    //     const docs = await Picture.find(query).lean().exec();
+    //     return res.json({pictures: docs});
+    // } catch (err) {
+    //     console.log(err);
+    //     return res.status(500).json({ error: 'Error retrieving pictures!' });
+    // }
 }
 
 // Get ONLY images based on filters
@@ -92,7 +93,7 @@ const getPictures = async (req, res) => {
         }
         // Likes
         const minLikes = Number(req.query.minLikes);
-        if(minLikes > 0) {
+        if(!isNaN(minLikes) && minLikes > 0) {
             // Get pictures >= minLikes
             query.$expr = { $gte: [{ $size: "$likes" }, minLikes] }
         }
@@ -134,8 +135,12 @@ const getPictures = async (req, res) => {
                 break;
         }
         // Rest of function
-        const docs = await Picture.find(query).select('image').sort(sort).lean().exec();
-        return res.json({pictures: docs});
+        const docs = await Picture.find(query).select('image mimetype name').sort(sort).lean().exec();
+        const pictures = docs.map(picture => ({
+            ...picture,
+            image: convertToData(picture.mimetype, picture.image),
+        }));
+        return res.json({ pictures });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'Error retrieving pictures!' });
@@ -146,10 +151,17 @@ const getPictures = async (req, res) => {
 const getPictureData = async (req, res) => {
     try {
         const query = {
-            _id: req.body._id,
+            _id: req.query._id,
         };
         // Rest of function
-        const pictureData = await Picture.find(query).lean().exec();
+        let pictureData = await Picture.findOne(query).lean().exec();
+        if(!pictureData) {
+            return res.status(404).json({ error: "Picture not found! "});
+        }
+        pictureData = {
+            ...pictureData,
+            image: convertToData(pictureData.mimetype, pictureData.image),
+        };
         return res.json({ pictureData });
     } catch (err) {
         console.log(err);
@@ -164,9 +176,9 @@ const likePicture = async (req, res) => {
             _id: req.body._id,
         };
         // No lean(), need to keep this in Mongo's format to update it
-        const picture = await Picture.find(query).exec();
+        const picture = await Picture.findOne(query).exec();
         if(!picture) {
-            return res.status(400).json({ error: "Picture not found!" });
+            return res.status(404).json({ error: "Picture not found!" });
         }
         // If the user has liked, remove like, otherwise add like
         // .some() is akin to something like .contains() (Documentation: https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Array/some)
@@ -201,7 +213,7 @@ const getLiked = async (req, res) => {
             _id: req.query._id,
         };
         // No lean(), need to keep this in Mongo's format to update it
-        const picture = await Picture.find(query).exec();
+        const picture = await Picture.findOne(query).exec();
         if(!picture) {
             return res.status(400).json({ error: "Picture not found!" });
         }
@@ -229,6 +241,24 @@ const deletePicture = async (req, res) => {
         console.log(err);
         return res.status(500).json({ error: 'Error deleting Picture!' });
     }
+}
+
+// Turn image into buffer before storing (https://nodejs.org/api/buffer.html#static-method-bufferfromarray)
+const convertToBuffer = (image) => {
+    // Remove prefix before converting, images stored without prefix
+    const prefixEnd = image.indexOf(',');
+    // If image begins with "data:" and the comma after base64 exists, slice the first half off
+    if (image.startsWith('data:') && prefixEnd !== -1) {
+        image = image.slice(prefixEnd + 1);
+    }
+    return Buffer.from(image, 'base64');
+}
+
+// Turn image into usable data for frontend
+// "data:" format: https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Schemes/data
+// Convert buffer to string: https://nodejs.org/api/buffer.html#buftostringencoding-start-end
+const convertToData = (mimetype, image) => {
+    return `data:${mimetype};base64,${image.toString('base64')}`;
 }
 
 module.exports = {
