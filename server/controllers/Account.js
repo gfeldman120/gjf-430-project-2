@@ -1,28 +1,28 @@
 const models = require('../models');
 const Account = models.Account;
 
+// Display the login page
 const loginPage = (req, res) => {
     return res.render('login');
 }
 
-const signupPage = (req, res) => {
-    return res.render('signup');
-}
-
+// Display the account page
 const accountPage = (req, res) => {
     return res.render('accountPage');
 }
 
+// Log the user out
 const logout = (req, res) => {
     // Destroy has a callback to ensure that the redirect occurs after the session is destroyed: https://github.com/expressjs/session
     req.session.destroy((err) => {
         if(err) {
             return res.status(500).json({ error: "Logout failed! "});
         }
-        return res.redirect('/mainPage');
+        return res.json({ redirect: '/mainPage' });
     });
 }
 
+// Try logging the user in
 const login = (req, res) => {
     const username = `${req.body.username}`;
     const pass = `${req.body.pass}`;
@@ -39,6 +39,7 @@ const login = (req, res) => {
     });
 }
 
+// Try creating an account for the user (automatically signs the user in)
 const signup = async (req, res) => {
     const username = `${req.body.username}`;
     const pass = `${req.body.pass}`;
@@ -101,7 +102,7 @@ const changePassword = async (req, res) => {
     }
 }
 
-// Change this account's password
+// Mark this account as premium
 const makePremium = async (req, res) => {
     try {
         const account = await Account.findById(req.session.account._id);
@@ -124,7 +125,6 @@ const getLoggedIn = (req, res) => {
 
 module.exports = {
     loginPage,
-    signupPage,
     accountPage,
     login,
     logout,

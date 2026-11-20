@@ -11,6 +11,7 @@ const router = (app) => {
     app.post('/makePicture', mid.requiresLogin, controllers.Picture.makePicture);
     app.post('/likePicture', mid.requiresLogin, controllers.Picture.likePicture);
     app.post('/deletePicture', mid.requiresLogin, controllers.Picture.deletePicture);
+    app.post('/editPictureData', mid.requiresLogin, controllers.Picture.editPictureData);
     
     // Account
     app.get('/logout', mid.requiresLogin, controllers.Account.logout);

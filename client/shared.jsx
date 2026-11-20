@@ -2,7 +2,7 @@
 const React = require('react');
 const { useState, useEffect } = React;
 
-// Similar to mainPage, different details reference
+// Display a list of pictures and update upon searching
 const PictureList = (props) => {
     const [pictures, setPictures] = useState([]);
     const [loading, setLoading] = useState(true);

@@ -6,6 +6,7 @@ const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
 
+// Handle searching
 const handleSearch = async (e, onPicturesGot) => {
     e.preventDefault();
 
@@ -42,6 +43,7 @@ const handleSearch = async (e, onPicturesGot) => {
     onPicturesGot(params.toString());
 }
 
+// Form used for searching pictures
 const PictureSearch = (props) => {
     // Used https://www.w3schools.com/tags/tag_select.asp to figure out select
     return(
@@ -79,6 +81,7 @@ const PictureSearch = (props) => {
     );
 }
 
+// Handle liking (or unliking) an image
 const handleLike = async (id, setLiked, setLikesCount, setIsLiking) => {
     setIsLiking(true);
     try {
@@ -100,6 +103,7 @@ const handleLike = async (id, setLiked, setLikesCount, setIsLiking) => {
     }
 }
 
+// Show user-facing details of an image, must stay seperate from accountPage due to functionality differences
 const PictureDetails = (props) => {
     // States for loggedIn and isOwner used to determine if like button should display
     const [picture, setPicture] = useState(null);
@@ -194,6 +198,7 @@ const PictureDetails = (props) => {
     );
 }
 
+// Container for page when showing images
 const ListApp = () => {
     // Give default search params for when page loads, also trigger reload when search params change (only upon submit)
     const [searchParams, setSearchParams] = useState('order=dateDescending');

@@ -80,6 +80,7 @@ const handleAccountPictureSearch = async (e, onPicturesGot) => {
     const tags = e.target.querySelector("#pictureTags").value.split(',').map(tag => tag.trim().replace('#', '')).filter(tag => tag.length > 0);
     const minLikes = e.target.querySelector("#pictureMinLikes").value;
     const date = e.target.querySelector("#pictureDate").value;
+    const publicity = e.target.querySelector("#picturePublicity").value;
     const dateFilter = e.target.querySelector("#pictureDateFilter").value;
     const order = e.target.querySelector("#pictureOrder").value;
 
@@ -100,10 +101,12 @@ const handleAccountPictureSearch = async (e, onPicturesGot) => {
         params.append("dateFilter", date);
     }
     params.append("order", order);
+    params.append("publicity", publicity);
 
     onPicturesGot(params.toString());
 }
 
+// Form used for searching pictures, similar to mainPage but less fields
 const AccountPictureSearch = (props) => {
     // Used https://www.w3schools.com/tags/tag_select.asp to figure out select
     return(
@@ -120,6 +123,12 @@ const AccountPictureSearch = (props) => {
             <input id="pictureMinLikes" type="number" min="0" name="minLikes"/>
             <label htmlFor="pictureDate">Date: </label>
             <input id="pictureDate" type="date" name="date"/>
+            <label htmlFor="picturePublicity">Publicity: </label>
+            <select id="picturePublicity" name="publicity">
+                <option value="">Show All</option>
+                <option value="public">Show Only Public</option>
+                <option value="private">Show Only Private</option>
+            </select>
             <label htmlFor="pictureDateFilter">Filter: </label>
             <select id="pictureDateFilter" name="dateFilter">
                 <option value="">No Date Filter</option>
@@ -139,93 +148,12 @@ const AccountPictureSearch = (props) => {
     );
 }
 
-const PictureDetails = (props) => {
-    const [picture, setPicture] = useState(null);
+// Show all details of an image, must stay seperate from mainPage due to functionality differences
+const AccountPictureDetails = (props) => {
 
-    useEffect(() => {
-        const getPicture = async () => {
-            try {
-                // Get picture, then get logged in, then check if mine
-                const response = await fetch (`/getPictureData?_id=${props.id}`, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                const data = await response.json();
-                setPicture(data);
-                // Also set current likes count
-                setLikesCount(data.likes.length);
-                // Logged in
-                const loginResponse = await fetch('/getLoggedIn', {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                });
-                const loginData = await loginResponse.json();
-                setLoggedIn(loginData.loggedIn);
-                // Check if mine, only if logged in
-                if (loginData.loggedIn) {
-                    const ownerResponse = await fetch(`/isMine?_id=${props.id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-                    const ownerData = await ownerResponse.json();
-                    setIsOwner(ownerData.isMine);
-                    // See if currently liked
-                    const likedResponse = await fetch(`/getLiked?_id=${props.id}`, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                    });
-                    const likedData = await likedResponse.json();
-                    setLiked(likedData.liked);
-                }
-            } catch {
-                console.log("Error loading picture");
-            }
-        };
-        getPicture();
-    }, [props.id]);
-
-    if(picture) {
-        return (
-            <>
-                <div className="pictureDetailsHeader">
-                    <button type="button" onClick={() => shared.renderPage(root, ListApp)}>Return</button>
-                </div>
-                <div className="pictureDetails">
-                    <h1>{picture.name}</h1>
-                    <img src={picture.image} alt={picture.name}/>
-                    <h2>{picture.owner}</h2>
-                    <h2>{picture.createdDate}</h2>
-                    <div>
-                        {loggedIn && !isOwner && (
-                            // Background color changing is temporary, idealy should use different images
-                            <button type="button" onClick={handleLike(props.id, setLiked, setLikesCount, setIsLiking)} disabled={isLiking} style={{backgroundColor: liked ? 'blue' : 'red', color: 'white',}}>LIKE</button>
-                        )}
-                        <p>{likesCount}</p>
-                    </div>
-                    <ul>
-                        {picture.tags.map(tag => <li key={tag}>{tag}</li>)}
-                    </ul>
-                    <p>{picture.description}</p>
-                </div>
-            </>
-        );
-    }
-    return (
-        <>
-            <h2>Loading picture...</h2>
-        </>
-    );
 }
 
-// Very similar to mainPage, additional components
+// Container for page when showing images & password change section
 const AccountListApp = () => {
     // Give default search params for when page loads, also trigger reload when search params change (only upon submit)
     const [searchParams, setSearchParams] = useState('order=dateDescending');

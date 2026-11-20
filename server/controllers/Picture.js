@@ -4,6 +4,7 @@ const Account = models.Account;
 // Premium max upload limit (10MB)
 const maxFreeUpload = 10 * 1024 * 1024;
 
+// Dispaly the main page
 const mainPage = async (req, res) => {
     res.render('app');
 };
@@ -88,7 +89,7 @@ const getPictures = async (req, res) => {
             };
         }
         // Username isn't stored, search via account ID
-        if (req.query.username) {
+        if(req.query.username) {
             const accounts = await Account.find({ 
                 username: { $regex: req.query.username, $options: 'i' }
             }).select('_id');
@@ -98,8 +99,17 @@ const getPictures = async (req, res) => {
             query.owner = { $in: accounts.map(account => account._id) };
         }
         // If getting myPictures, use this account's name for the owner, otherwise only find public pictures
-        if (req.query.myPictures) {
+        if(req.query.myPictures) {
             query.owner = req.session.account._id;
+            // Only filter publicity if owned by this account, no default case because default means show all
+            switch(req.query.publicity) {
+                case "public":
+                    query.public = true;
+                    break;
+                case "private":
+                    query.public = false;
+                    break;
+            }
         }
         else {
             query.public = true;
@@ -254,13 +264,34 @@ const getLiked = async (req, res) => {
         // No lean(), need to keep this in Mongo's format to update it
         const picture = await Picture.findOne(query).exec();
         if(!picture) {
-            return res.status(400).json({ error: "Picture not found!" });
+            return res.status(404).json({ error: "Picture not found!" });
         }
         // Return whether or not this one is liked, used to update the like button
         return res.status(200).json({ liked: picture.likes.some((id) => id.equals(req.session.account._id)) });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'Error retrieving picture data!' });
+    }
+}
+
+// Edit the description, tags and publicity of a picture
+const editPictureData = async (req, res) => {
+    try {
+        const picture = await Picture.findOne({
+            _id,
+            owner: req.session.account._id
+        });
+        if (!picture) {
+            return res.status(404).json({ error: "Picture not found!" });
+        }
+        picture.description = req.body.description;
+        picture.tags = req.body.tags;
+        picture.public = req.body.public;
+        await picture.save();
+        return res.status(204).json(picture);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: 'Error editing picture!' });
     }
 }
 
@@ -298,5 +329,6 @@ module.exports = {
     isMine,
     likePicture,
     getLiked,
+    editPictureData,
     deletePicture,
 };

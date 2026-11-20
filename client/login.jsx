@@ -6,6 +6,7 @@ const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
 
+// Handle logging in
 const handleLogin = (e) => {
     e.preventDefault();
 
@@ -21,6 +22,7 @@ const handleLogin = (e) => {
     return false;
 }
 
+// Handle signing up
 const handleSignup = (e) => {
     e.preventDefault();
 
@@ -42,6 +44,7 @@ const handleSignup = (e) => {
     return false;
 }
 
+// Window used to login
 const LoginWindow = (props) => {
     return (
         <>
@@ -57,6 +60,7 @@ const LoginWindow = (props) => {
     );
 }
 
+// Window used to sign up
 const SignupWindow = (props) => {
     return (
         <>
