@@ -52,7 +52,7 @@ const makePicture = async (req, res) => {
 }
 
 // Get the photos from the current user
-const getMyPictures = async (req, res) => {
+// const getMyPictures = async (req, res) => {
     // try {
     //     const query = { owner: req.session.account._id };
     //     const docs = await Picture.find(query).lean().exec();
@@ -61,7 +61,7 @@ const getMyPictures = async (req, res) => {
     //     console.log(err);
     //     return res.status(500).json({ error: 'Error retrieving pictures!' });
     // }
-}
+// }
 
 // Get ONLY images based on filters
 const getPictures = async (req, res) => {
