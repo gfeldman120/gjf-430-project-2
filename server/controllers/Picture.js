@@ -264,7 +264,7 @@ const convertToData = (mimetype, image) => {
 module.exports = {
     mainPage,
     makePicture,
-    getMyPictures,
+    // getMyPictures,
     getPictures,
     getPictureData,
     likePicture,
