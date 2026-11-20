@@ -148,7 +148,7 @@ const getPictures = async (req, res) => {
             ...picture,
             image: convertToData(picture.mimetype, picture.image),
         }));
-        return res.json({ pictures });
+        return res.json(pictures);
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'Error retrieving pictures!' });
@@ -170,7 +170,7 @@ const getPictureData = async (req, res) => {
             ...pictureData,
             image: convertToData(pictureData.mimetype, pictureData.image),
         };
-        return res.json({ pictureData });
+        return res.json(pictureData);
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'Error retrieving picture data!' });
@@ -188,7 +188,8 @@ const isMine = async (req, res) => {
             return res.status(400).json({ error: "Picture not found!" });
         }
         // Return whether or not this picture is owned by this account
-        return res.status(200).json({ isMine: picture.owner.equals(req.session.account._id) });
+        // Ran into errors using .equals, using strings instead
+        return res.status(200).json({ isMine: picture.owner.toString() === req.session.account._id.toString() });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'Error retrieving picture data!' });

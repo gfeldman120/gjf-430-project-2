@@ -80,9 +80,14 @@ const PictureList = (props) => {
     useEffect(() => {
         setLoading(true);
         const getPictures = async () => {
-            const response = await fetch(`/getPictures?${props.searchParams}`);
+            const response = await fetch(`/getPictures?${props.searchParams}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             const data = await response.json();
-            setPictures(data.pictures);
+            setPictures(data);
             setLoading(false);
         };
         getPictures();
@@ -118,22 +123,87 @@ const PictureList = (props) => {
     );
 }
 
+const handleLike = async (id, setLiked, setLikesCount, setIsLiking) => {
+    setIsLiking(true);
+    try {
+        const response = await fetch('/likePicture', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ _id: id }),
+        });
+        const data = await response.json();
+        setLiked(data.liked);
+        setLikesCount(prev => data.liked ? prev + 1 : prev - 1);
+    } catch (err) {
+        console.error('Error liking picture:', err);
+    // Finally ensures that this is set to false AFTER everything finishes, successful or not
+    } finally {
+        setIsLiking(false);
+    }
+};
+
 const PictureDetails = (props) => {
-    const [picture, setPicture] = useState({});
+    // States for loggedIn and isOwner used to determine if like button should display
+    const [picture, setPicture] = useState(null);
+    const [loggedIn, setLoggedIn] = useState(false);
+    const [isOwner, setIsOwner] = useState(false);
+    // States for like button, need to update when like button is used (also, updating visual upon component mount)
+    const [liked, setLiked] = useState(false);
+    const [likesCount, setLikesCount] = useState(0);
+    // Need a state to stop users from spamming the like button
+    const [isLiking, setIsLiking] = useState(false);
 
     useEffect(() => {
         const getPicture = async () => {
-            const response = await fetch (`/getPictureData?_id=${props.id}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await response.json();
-            setPicture(data);
-        }
+            try {
+                // Get picture, then get logged in, then check if mine
+                const response = await fetch (`/getPictureData?_id=${props.id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const data = await response.json();
+                setPicture(data);
+                // Also set current likes count
+                setLikesCount(data.likes.length);
+                // Logged in
+                const loginResponse = await fetch('/getLoggedIn', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const loginData = await loginResponse.json();
+                setLoggedIn(loginData.loggedIn);
+                // Check if mine, only if logged in
+                if (loginData.loggedIn) {
+                    const ownerResponse = await fetch(`/isMine?_id=${props.id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    const ownerData = await ownerResponse.json();
+                    setIsOwner(ownerData.isMine);
+                    // See if currently liked
+                    const likedResponse = await fetch(`/getLiked?_id=${props.id}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    });
+                    const likedData = await likedResponse.json();
+                    setLiked(likedData.liked);
+                }
+            } catch {
+                console.log("Error loading picture");
+            }
+        };
         getPicture();
-    }, []);
+    }, [props.id]);
 
     if(picture) {
         return (
@@ -143,10 +213,16 @@ const PictureDetails = (props) => {
                 </div>
                 <div className="pictureDetails">
                     <h1>{picture.name}</h1>
-                    <img src={picture.image} alt="Picture"/>
+                    <img src={picture.image} alt={picture.name}/>
                     <h2>{picture.owner}</h2>
                     <h2>{picture.createdDate}</h2>
-                    <p>{picture.likes.length}</p>
+                    <div>
+                        {loggedIn && !isOwner && (
+                            // Background color changing is temporary, idealy should use different images
+                            <button type="button" onClick={handleLike(props.id, setLiked, setLikesCount, setIsLiking)} disabled={isLiking} style={{backgroundColor: liked ? 'blue' : 'red', color: 'white',}}>LIKE</button>
+                        )}
+                        <p>{likesCount}</p>
+                    </div>
                     <ul>
                         {picture.tags.map(tag => <li key={tag}>{tag}</li>)}
                     </ul>

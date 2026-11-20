@@ -16,7 +16,12 @@ const Navigation = (props) => {
     // Default to not logged in and renders as such upon mounting, re-renders if loggedIn changes (if request succeeds and returns loggedIn being true)
     useEffect(() => {
         const getLoggedInFromServer = async () => {
-            const response = await fetch ('/getLoggedIn');
+            const response = await fetch ('/getLoggedIn', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
             const data = await response.json();
             setLoggedIn(data.loggedIn);
         }

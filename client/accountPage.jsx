@@ -67,7 +67,7 @@ const MakeImageWindow = () => {
             <textarea id="pictureDescription" name="description"/>
             <label htmlFor="pictureTags">Tags (comma-separated):</label>
             <input id="pictureTags" name="tags" type="text"/>
-            <input type="submit" value="Upload Picture" />
+            <input className="formSubmit" type="submit" value="Upload picture" />
         </form>
     );
 }
