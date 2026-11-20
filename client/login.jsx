@@ -46,7 +46,7 @@ const LoginWindow = (props) => {
     return (
         <>
             <form id="loginForm" name="loginForm" onSubmit={handleLogin} action="/login" method="POST" className="mainForm">
-                <label htmlFor="username">Username: </label>
+                <label htmlFor="user">Username: </label>
                 <input id="user" type="text" name="username" placeholder="username"/>
                 <label htmlFor="pass">Password: </label>
                 <input id="pass" type="password" name="pass" placeholder="password"/>
@@ -61,7 +61,7 @@ const SignupWindow = (props) => {
     return (
         <>
             <form id="signupForm" name="signupForm" onSubmit={handleSignup} action="/signup" method="POST" className="mainForm">
-                <label htmlFor="username">Username: </label>
+                <label htmlFor="user">Username: </label>
                 <input id="user" type="text" name="username" placeholder="username"/>
                 <label htmlFor="pass">Password: </label>
                 <input id="pass" type="password" name="pass" placeholder="password"/>

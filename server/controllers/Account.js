@@ -14,14 +14,19 @@ const accountPage = (req, res) => {
 }
 
 const logout = (req, res) => {
-    req.session.destroy();
-    return res.redirect('/mainPage');
+    // Destroy has a callback to ensure that the redirect occurs after the session is destroyed: https://github.com/expressjs/session
+    req.session.destroy((err) => {
+        if(err) {
+            return res.status(500).json({ error: "Logout failed! "});
+        }
+        return res.redirect('/mainPage');
+    });
 }
 
 const login = (req, res) => {
     const username = `${req.body.username}`;
     const pass = `${req.body.pass}`;
-    if(!username || !pass) {
+    if(!username || username.length === 0 || !pass || pass.length === 0) {
         return res.status(400).json({ error: 'All fields are required!' });
     }
 
@@ -39,11 +44,11 @@ const signup = async (req, res) => {
     const pass = `${req.body.pass}`;
     const pass2 = `${req.body.pass2}`;
 
-    if(!username || !pass || !pass2) {
+    if(!username || username.length === 0 || !pass || pass.length === 0 || !pass2 || pass2.length === 0) {
         return res.status(400).json({ error: 'All fields are required!' });
     }
 
-    if(pass != pass2) {
+    if(pass !== pass2) {
         return res.status(400).json({ error: 'Passwords do not match!' });
     }
 
@@ -68,7 +73,7 @@ const changePassword = async (req, res) => {
     const newPass = `${req.body.newPass}`;
     const newPass2 = `${req.body.newPass2}`;
 
-    if(!pass || !newPass || !newPass2) {
+    if(!pass || pass.length === 0 || !newPass || newPass.length === 0 || !newPass2 || newPass2.length === 0) {
         return res.status(400).json({ error: 'All fields are required!' });
     }
 
@@ -110,7 +115,7 @@ const makePremium = async (req, res) => {
 }
 
 // Check if an account is logged in
-const getLoggedIn = async (req, res) => {
+const getLoggedIn = (req, res) => {
     if(req.session.account) {
         return res.status(200).json({ loggedIn: true });
     }

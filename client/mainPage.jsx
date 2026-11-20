@@ -138,15 +138,20 @@ const PictureDetails = (props) => {
     if(picture) {
         return (
             <>
-                <h1>{picture.name}</h1>
-                <img src={picture.image} alt="Picture"/>
-                <h2>{picture.owner}</h2>
-                <h2>{picture.createdDate}</h2>
-                <p>{picture.likes.length}</p>
-                <ul>
-                    {picture.tags.map(tag => <li key={tag}>{tag}</li>)}
-                </ul>
-                <p>{picture.description}</p>
+                <div className="pictureDetailsHeader">
+                    <button type="button" onClick={() => shared.renderPage(root, ListApp)}>Return</button>
+                </div>
+                <div className="pictureDetails">
+                    <h1>{picture.name}</h1>
+                    <img src={picture.image} alt="Picture"/>
+                    <h2>{picture.owner}</h2>
+                    <h2>{picture.createdDate}</h2>
+                    <p>{picture.likes.length}</p>
+                    <ul>
+                        {picture.tags.map(tag => <li key={tag}>{tag}</li>)}
+                    </ul>
+                    <p>{picture.description}</p>
+                </div>
             </>
         );
     }
