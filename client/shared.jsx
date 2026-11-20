@@ -2,6 +2,57 @@
 const React = require('react');
 const { useState, useEffect } = React;
 
+// Similar to mainPage, different details reference
+const PictureList = (props) => {
+    const [pictures, setPictures] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        setLoading(true);
+        const getPictures = async () => {
+            const response = await fetch(`${props.url}?${props.searchParams}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            setPictures(data);
+            setLoading(false);
+        };
+        getPictures();
+    // Both reload and search params must have changed
+    }, [props.searchParams, props.reload]);
+    
+    if (loading) {
+        return (
+            <>
+                <h3>Loading pictures</h3>
+            </>
+        );
+    }
+
+    if(pictures.length === 0) {
+        return (
+            <div className="pictureList">
+                <h3 className="noPictures">No pictures found.</h3>
+            </div>
+        );
+    }
+
+    const pictureList = pictures.map(picture => (
+        <div key={picture._id} className="picture">
+            <img src={picture.image} alt={picture.name} className="pictureImg" onClick={() => shared.renderPage(root, () => <props.Details id={picture._id}/>)}/>
+        </div>
+    ));
+
+    return (
+        <>
+            {pictureList}
+        </>
+    );
+}
+
 // Link to the main page, reused across both navigation bar versions
 const HomeLink = (props) => {
     return (
@@ -63,5 +114,6 @@ const renderPage = (root, content) => {
 }
 
 module.exports = {
+    PictureList,
     renderPage,
 }

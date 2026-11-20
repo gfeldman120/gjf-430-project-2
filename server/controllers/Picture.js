@@ -1,5 +1,6 @@
 const models = require('../models');
 const Picture = models.Picture;
+const Account = models.Account;
 // Premium max upload limit (10MB)
 const maxFreeUpload = 10 * 1024 * 1024;
 
@@ -63,6 +64,7 @@ const makePicture = async (req, res) => {
 // Allows private photos: Middleware ensures that this is only called if signed in
 const getMyPictures = (req, res) => {
     req.query.myPictures = true;
+    req.query.username = req.session.account.username;
     return getPictures(req, res);
 }
 
@@ -84,6 +86,16 @@ const getPictures = async (req, res) => {
                 // "$options: i" makes the search ignore case
                 $options: 'i'
             };
+        }
+        // Username isn't stored, search via account ID
+        if (req.query.username) {
+            const accounts = await Account.find({ 
+                username: { $regex: req.query.username, $options: 'i' }
+            }).select('_id');
+            if (!account) {
+                return res.json([]);
+            }
+            query.owner = { $in: accounts.map(account => account._id) };
         }
         // If getting myPictures, use this account's name for the owner, otherwise only find public pictures
         if (req.query.myPictures) {

@@ -10,6 +10,7 @@ const handleSearch = async (e, onPicturesGot) => {
     e.preventDefault();
 
     const name = e.target.querySelector("#pictureName").value.trim();
+    const username = e.target.querySelector("#pictureUsername").value.trim();
     // Tags should split on ',', ignore all spaces and remove # (despite display), also removes tags that don't exist following this
     const tags = e.target.querySelector("#pictureTags").value.split(',').map(tag => tag.trim().replace('#', '')).filter(tag => tag.length > 0);
     const minLikes = e.target.querySelector("#pictureMinLikes").value;
@@ -22,6 +23,9 @@ const handleSearch = async (e, onPicturesGot) => {
     const params = new URLSearchParams();
     if(name.length > 0) {
         params.append("name", name);
+    }
+    if(username.length > 0) {
+        params.append("username", username);
     }
     if(tags.length > 0) {
         params.append("tags", tags);
@@ -48,6 +52,8 @@ const PictureSearch = (props) => {
         >
             <label htmlFor="pictureName">Name: </label>
             <input id="pictureName" type="text" name="name" placeholder="Picture name"/>
+            <label htmlFor="pictureUsername">Poster's username: </label>
+            <input id="pictureUsername" type="text" name="username" placeholder="Picture username"/>
             <label htmlFor="pictureTags">Tags: </label>
             <input id="pictureTags" type="text" name="tags" placeholder="Tags, separated by commas"/>
             <label htmlFor="pictureMinLikes">Minimum Likes: </label>
@@ -56,7 +62,7 @@ const PictureSearch = (props) => {
             <input id="pictureDate" type="date" name="date"/>
             <label htmlFor="pictureDateFilter">Filter: </label>
             <select id="pictureDateFilter" name="dateFilter">
-                <option value="">Ignore Date</option>
+                <option value="">No Date Filter</option>
                 <option value="same">Same Date</option>
                 <option value="before">Before Date</option>
                 <option value="after">After Date</option>
@@ -70,56 +76,6 @@ const PictureSearch = (props) => {
             </select>
             <input id="pictureSubmit" type="submit" value="Search"/>
         </form>
-    );
-}
-
-const PictureList = (props) => {
-    const [pictures, setPictures] = useState([]);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        setLoading(true);
-        const getPictures = async () => {
-            const response = await fetch(`/getPictures?${props.searchParams}`, {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            const data = await response.json();
-            setPictures(data);
-            setLoading(false);
-        };
-        getPictures();
-    // Both reload and search params must have changed
-    }, [props.searchParams, props.reload]);
-    
-    if (loading) {
-        return (
-            <>
-                <h3>Loading pictures</h3>
-            </>
-        );
-    }
-
-    if(pictures.length === 0) {
-        return (
-            <div className="pictureList">
-                <h3 className="noPictures">No pictures found.</h3>
-            </div>
-        );
-    }
-
-    const pictureList = pictures.map(picture => (
-        <div key={picture._id} className="picture">
-            <img src={picture.image} alt={picture.name} className="pictureImg" onClick={() => shared.renderPage(root, () => <PictureDetails id={picture._id}/>)}/>
-        </div>
-    ));
-
-    return (
-        <>
-            {pictureList}
-        </>
     );
 }
 
@@ -142,7 +98,7 @@ const handleLike = async (id, setLiked, setLikesCount, setIsLiking) => {
     } finally {
         setIsLiking(false);
     }
-};
+}
 
 const PictureDetails = (props) => {
     // States for loggedIn and isOwner used to determine if like button should display
@@ -250,15 +206,15 @@ const ListApp = () => {
 
     return (
         <>
-            <PictureSearch triggerReload={triggerReload} />
-            <PictureList searchParams={searchParams} reload={reload} />
+            <PictureSearch triggerReload={triggerReload}/>
+            <shared.PictureList url={"/getMyPictures"} searchParams={searchParams} reload={reload} Details={PictureDetails}/>
         </>
     );
 }
 
 const init = () => {
     root = createRoot(document.getElementById('content'));
-    shared.renderPage(root, ListApp);
+    shared.renderPage(root, <ListApp/>);
 }
 
 window.onload = init;
