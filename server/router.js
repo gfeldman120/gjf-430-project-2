@@ -3,9 +3,10 @@ const mid = require('./middleware');
 const router = (app) => {
     // Picture
     app.get('/getPictures', mid.requiresSecure, controllers.Picture.getPictures);
-    // app.get('/getMyPictures', mid.requiresLogin, controllers.Picture.getMyPictures);
+    app.get('/getMyPictures', mid.requiresLogin, controllers.Picture.getMyPictures);
     app.get('/getPictureData', mid.requiresSecure, controllers.Picture.getPictureData);
     app.get('/getLiked', mid.requiresLogin, controllers.Picture.getLiked);
+    app.get('/isMine', mid.requiresLogin, controllers.Picture.isMine);
     
     app.post('/makePicture', mid.requiresLogin, controllers.Picture.makePicture);
     app.post('/likePicture', mid.requiresLogin, controllers.Picture.likePicture);

@@ -6,16 +6,6 @@ const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
 
-// Taken from file upload repo
-/* <form ref='uploadForm' 
-      id='uploadForm' 
-      action='/upload' 
-      method='post' 
-      encType="multipart/form-data">
-        <input type="file" name="sampleFile" />
-        <input type='submit' value='Upload!' />
-    </form> */
-
 const handleChangePassword = (e) => {
     const pass = e.target.querySelector('#pass').value;
     const newPass = e.target.querySelector('#newPass').value;
@@ -35,9 +25,9 @@ const handleChangePassword = (e) => {
     return false;
 }
 
-const ChangePasswordWindow = (props) => {
+const ChangePasswordWindow = () => {
     return (
-        <form id="changePasswordForm" name="changePasswordForm" onSubmit={handleChangePassword} action="/changePassword" method="POST" className="mainForm">
+        <form id="changePasswordForm" name="changePasswordForm" onSubmit={handleChangePassword} action="/changePassword">
             <label htmlFor="pass">Password: </label>
             <input id="pass" type="password" name="pass" placeholder="password"/>
             <label htmlFor="newPass">New password: </label>
@@ -49,8 +39,51 @@ const ChangePasswordWindow = (props) => {
     );
 }
 
+const handlePictureCreation = async (e) => {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    try {
+        const response = await fetch('/makePicture', {
+            method: 'POST',
+            body: formData,
+        });
+        const data = await response.json();
+        if(data) {
+            console.log("Picture created");
+        }
+    } catch(err) {
+        console.log("Error making picture");
+    }
+};
+
+const MakeImageWindow = () => {
+    return (
+        <form id="makePictureForm" name="makePictureForm" onSubmit={handlePictureCreation}>
+            <label htmlFor="pictureName">Name:</label>
+            <input id="pictureName" name="name" type="text"/>
+            <label htmlFor="pictureImage">Image:</label>
+            <input id="pictureImage" name="image" type="file" accept="image/*"/>
+            <label htmlFor="pictureDescription">Description:</label>
+            <textarea id="pictureDescription" name="description"/>
+            <label htmlFor="pictureTags">Tags (comma-separated):</label>
+            <input id="pictureTags" name="tags" type="text"/>
+            <input type="submit" value="Upload Picture" />
+        </form>
+    );
+}
+
+const AccountApp = () => {
+    return (
+        <>
+            <MakeImageWindow/>
+            <ChangePasswordWindow/>
+        </>
+    );
+}
+
 const init = () => {
-    root = createRoot(document.getElementById('content'));
+    root = createRoot(document.getElementById('application'));
+    shared.renderPage(root, <AccountApp/>);
 }
 
 window.onload = init;

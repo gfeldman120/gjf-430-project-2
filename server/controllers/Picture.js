@@ -1,5 +1,7 @@
 const models = require('../models');
 const Picture = models.Picture;
+// Premium max upload limit (10MB)
+const maxFreeUpload = 10 * 1024 * 1024;
 
 const mainPage = async (req, res) => {
     res.render('app');
@@ -7,26 +9,32 @@ const mainPage = async (req, res) => {
 
 // Make a picture
 const makePicture = async (req, res) => {
-    // Required fields
-    if(!req.body.name || !req.body.image || req.body.size === undefined || req.body.size <= 0 || !req.body.mimetype) {
-        return res.status(400).json({ error: 'All fields are required!' });
-    }
-    const imageBuffer = convertToBuffer(req.body.image);
-    const pictureData = {
-        name: req.body.name,
-        image: imageBuffer,
-        size: req.body.size,
-        mimetype: req.body.mimetype,
-        owner: req.session.account._id,
-    };
-    // Optional fields
-    if(req.body.description) {
-        pictureData.description = req.body.description;
-    }
-    if(req.body.tags) {
-        pictureData.tags = req.body.tags;
-    }
     try {
+        // Required fields
+        if(!req.files || !req.files.image) {
+            return res.status(400).json({ error: 'An image is required!' });
+        }
+        const pictureData = {
+            name: req.files.image.name,
+            image: req.files.image.data,
+            size: req.files.image.size,
+            mimetype: req.files.image.mimetype,
+            owner: req.session.account._id,
+        };
+        // If size is too big, disallow if not premium
+        if(!req.session.account.premium && pictureData.size > maxFreeUpload) {
+            return res.status(400).json({ error: `Non-premium accounts cannot upload beyond ${maxFreeUpload / (1024 * 1024)}MB!` });
+        }
+        // Optional fields
+        if(req.body.name.length > 0) {
+            pictureData.name = req.body.name;
+        }
+        if(req.body.description) {
+            pictureData.description = req.body.description;
+        }
+        if(req.body.tags) {
+            pictureData.tags = req.body.tags;
+        }
         const newPicture = new Picture(pictureData);
         await newPicture.save();
         return res.status(201).json({
@@ -52,23 +60,16 @@ const makePicture = async (req, res) => {
 }
 
 // Get the photos from the current user
-// const getMyPictures = async (req, res) => {
-    // try {
-    //     const query = { owner: req.session.account._id };
-    //     const docs = await Picture.find(query).lean().exec();
-    //     return res.json({pictures: docs});
-    // } catch (err) {
-    //     console.log(err);
-    //     return res.status(500).json({ error: 'Error retrieving pictures!' });
-    // }
-// }
+// Allows private photos: Middleware ensures that this is only called if signed in
+const getMyPictures = (req, res) => {
+    req.query.myPictures = true;
+    return getPictures(req, res);
+}
 
 // Get ONLY images based on filters
 const getPictures = async (req, res) => {
     try {
-        const query = {
-            public: true,
-        };
+        const query = {};
         // Filters
         // Used https://www.geeksforgeeks.org/mongodb/how-to-query-mongodb-with-like/ as reference for $regex and $options
         // Used https://www.mongodb.com/docs/manual/reference/operator/query/size/ as reference for $size
@@ -83,6 +84,13 @@ const getPictures = async (req, res) => {
                 // "$options: i" makes the search ignore case
                 $options: 'i'
             };
+        }
+        // If getting myPictures, use this account's name for the owner, otherwise only find public pictures
+        if (req.query.myPictures) {
+            query.owner = req.session.account._id;
+        }
+        else {
+            query.public = true;
         }
         // Tags
         if(req.query.tags) {
@@ -108,7 +116,7 @@ const getPictures = async (req, res) => {
                     query.createdDate = { $gte: date };
                 }
                 else if(req.query.dateFilter === 'before') {
-                    query.createdDate = { $lte: date };
+                    query.createdDate = { $lt: date };
                 }
                 else if(req.query.dateFilter === 'same') {
                     // Need to give a full day's range, not just 1 day at midnight
@@ -163,6 +171,24 @@ const getPictureData = async (req, res) => {
             image: convertToData(pictureData.mimetype, pictureData.image),
         };
         return res.json({ pictureData });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: 'Error retrieving picture data!' });
+    }
+}
+
+// Check if picture is owned by the user
+const isMine = async (req, res) => {
+    try {
+        const query = {
+            _id: req.query._id,
+        };
+        const picture = await Picture.findOne(query).lean().exec();
+        if(!picture) {
+            return res.status(400).json({ error: "Picture not found!" });
+        }
+        // Return whether or not this picture is owned by this account
+        return res.status(200).json({ isMine: picture.owner.equals(req.session.account._id) });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'Error retrieving picture data!' });
@@ -243,17 +269,6 @@ const deletePicture = async (req, res) => {
     }
 }
 
-// Turn image into buffer before storing (https://nodejs.org/api/buffer.html#static-method-bufferfromarray)
-const convertToBuffer = (image) => {
-    // Remove prefix before converting, images stored without prefix
-    const prefixEnd = image.indexOf(',');
-    // If image begins with "data:" and the comma after base64 exists, slice the first half off
-    if (image.startsWith('data:') && prefixEnd !== -1) {
-        image = image.slice(prefixEnd + 1);
-    }
-    return Buffer.from(image, 'base64');
-}
-
 // Turn image into usable data for frontend
 // "data:" format: https://developer.mozilla.org/en-US/docs/Web/URI/Reference/Schemes/data
 // Convert buffer to string: https://nodejs.org/api/buffer.html#buftostringencoding-start-end
@@ -264,9 +279,10 @@ const convertToData = (mimetype, image) => {
 module.exports = {
     mainPage,
     makePicture,
-    // getMyPictures,
+    getMyPictures,
     getPictures,
     getPictureData,
+    isMine,
     likePicture,
     getLiked,
     deletePicture,
