@@ -223,7 +223,7 @@ const ListApp = () => {
 }
 
 const init = () => {
-    root = createRoot(document.getElementById('content'));
+    root = createRoot(document.getElementById('application'));
     shared.renderPage(root, <ListApp/>);
 }
 

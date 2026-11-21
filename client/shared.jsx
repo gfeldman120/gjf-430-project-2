@@ -1,4 +1,4 @@
-// This file exists to hold React components used across multiple pages
+// This file exists to hold React components and functions used across multiple pages
 const React = require('react');
 const { useState, useEffect } = React;
 

@@ -30,7 +30,22 @@ redisClient.on('erorr', (err) => console.log(`Redis Client Error: ${err}`));
 redisClient.connect().then(() => {
    const app = express();
 
-    app.use(helmet());
+    // Helmet config had to be changed to get app running, enabling blob resources
+    app.use(
+        helmet({
+            contentSecurityPolicy: {
+                directives: {
+                    defaultSrc: ["'self'"],
+                    scriptSrc: ["'self'", "'unsafe-inline'", "blob:"],
+                    workerSrc: ["'self'", "blob:"],
+                    imgSrc: ["'self'", "data:", "blob:"],
+                    connectSrc: ["'self'"],
+                    styleSrc: ["'self'", "'unsafe-inline'"],
+                },
+            },
+        })
+    );
+
     app.use('/assets', express.static(path.resolve(`${__dirname}/../hosted`)));
     app.use(favicon(`${__dirname}/../hosted/img/favicon.png`));
     app.use(compression());

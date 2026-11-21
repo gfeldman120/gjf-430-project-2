@@ -1,6 +1,6 @@
 // Dispaly the main page
 const mainPage = async (req, res) => {
-    res.render('main');
+    return res.render('main');
 };
 
 // Display the login page
