@@ -42,7 +42,7 @@ const PictureList = (props) => {
 
     const pictureList = pictures.map(picture => (
         <div key={picture._id} className="picture">
-            <img src={picture.image} alt={picture.name} className="pictureImg" onClick={() => shared.renderPage(root, () => <props.Details id={picture._id}/>)}/>
+            <img src={picture.image} alt={picture.name} className="pictureImg" onClick={() => shared.renderPage(props.root, () => <props.Details id={picture._id}/>)}/>
         </div>
     ));
 

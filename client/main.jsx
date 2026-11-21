@@ -35,11 +35,11 @@ const handleSearch = async (e, onParamsGot) => {
     }
     if(date && dateFilter.length > 0) {
         params.append("date", date);
-        params.append("dateFilter", date);
+        params.append("dateFilter", dateFilter);
     }
     params.append("order", order);
 
-    onParamssGot(params.toString());
+    onParamsGot(params.toString());
 }
 
 // Form used for searching pictures
@@ -178,7 +178,7 @@ const PictureDetails = (props) => {
                     <div>
                         {loggedIn && !isOwner && (
                             // Background color changing is temporary, idealy should use different images
-                            <button type="button" onClick={handleLike(props.id, setLiked, setLikesCount, setIsLiking)} disabled={isLiking} style={{backgroundColor: liked ? 'blue' : 'red', color: 'white',}}>LIKE</button>
+                            <button type="button" onClick={() => handleLike(props.id, setLiked, setLikesCount, setIsLiking)} disabled={isLiking} style={{backgroundColor: liked ? 'blue' : 'red', color: 'white',}}>LIKE</button>
                         )}
                         <p>{likesCount}</p>
                     </div>
@@ -192,7 +192,12 @@ const PictureDetails = (props) => {
     }
     return (
         <>
-            <h2>Loading picture...</h2>
+            <div className="pictureDetailsHeader">
+                <button type="button" onClick={() => shared.renderPage(root, ListApp)}>Return</button>
+            </div>
+            <div className="pictureDetails">
+                <h2>Loading picture...</h2>
+            </div>
         </>
     );
 }
@@ -211,7 +216,7 @@ const ListApp = () => {
     return (
         <>
             <PictureSearch triggerReload={triggerReload}/>
-            <shared.PictureList url={"/getMyPictures"} searchParams={searchParams} reload={reload} Details={PictureDetails}/>
+            <shared.PictureList url={"/getMyPictures"} root={root} searchParams={searchParams} reload={reload} Details={PictureDetails}/>
         </>
     );
 }

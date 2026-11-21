@@ -88,7 +88,7 @@ const getPictures = async (req, res) => {
             const accounts = await Account.find({ 
                 username: { $regex: req.query.username, $options: 'i' }
             }).select('_id');
-            if (!account) {
+            if (accounts.length === 0) {
                 return res.json([]);
             }
             query.owner = { $in: accounts.map(account => account._id) };
@@ -274,7 +274,7 @@ const getLiked = async (req, res) => {
 const editPictureData = async (req, res) => {
     try {
         const picture = await Picture.findOne({
-            _id,
+            _id: req.body._id,
             owner: req.session.account._id
         });
         if (!picture) {
@@ -284,7 +284,7 @@ const editPictureData = async (req, res) => {
         picture.tags = req.body.tags;
         picture.public = req.body.public;
         await picture.save();
-        return res.status(204).json(picture);
+        return res.status(200).json(picture);
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: 'Error editing picture!' });
@@ -295,8 +295,8 @@ const editPictureData = async (req, res) => {
 const deletePicture = async (req, res) => {
     try {
         const query = { 
-            owner: req.session.account._id,
             _id: req.body._id,
+            owner: req.session.account._id,
         }
         const deletedPicture = await Picture.findOneAndDelete(query);
         if (deletedPicture) {

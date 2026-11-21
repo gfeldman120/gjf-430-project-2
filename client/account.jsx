@@ -5,6 +5,8 @@ const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
 
+
+// Handle changing of the password
 const handleChangePassword = (e) => {
     const pass = e.target.querySelector('#pass').value;
     const newPass = e.target.querySelector('#newPass').value;
@@ -24,6 +26,7 @@ const handleChangePassword = (e) => {
     return false;
 }
 
+// Window for changing the password
 const ChangePasswordWindow = () => {
     return (
         <form id="changePasswordForm" name="changePasswordForm" onSubmit={handleChangePassword} action="/changePassword">
@@ -38,6 +41,7 @@ const ChangePasswordWindow = () => {
     );
 }
 
+// Handle creating a picture
 const handlePictureCreation = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -55,6 +59,7 @@ const handlePictureCreation = async (e) => {
     }
 };
 
+// Window for making a picture
 const MakeImageWindow = () => {
     return (
         <form id="makePictureForm" name="makePictureForm" onSubmit={handlePictureCreation}>
@@ -71,6 +76,7 @@ const MakeImageWindow = () => {
     );
 }
 
+// Handle searching of pictures from this account
 const handleAccountPictureSearch = (e, onParamsGot) => {
     e.preventDefault();
 
@@ -147,14 +153,142 @@ const AccountPictureSearch = (props) => {
     );
 }
 
-// Handle editing of picture
-const handleAccountPictureEdit = async (e, onParamsGot) => {
+// Handle editing of a picture
+const handleAccountPictureEdit = async (e, id, description, tagsInput, isPublic, setPicture, setSaving) => {
+    e.preventDefault(); 
+    setSaving(true);
+    try {
+        const tags = tagsInput.split(',').map(tag => tag.trim().replace('#', '')).filter(tag => tag.length > 0);
+        const response = await fetch('/editPictureData', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                _id: id,
+                description,
+                tags,
+                public: isPublic
+            })
+        });
+        const data = await response.json();
+        if(!response.ok) {
+            throw new Error("Something went wrong!");
+        }
+        setPicture(prev => ({
+            ...prev,
+            description: data.description,
+            tags: data.tags,
+            public: data.public
+        }));
+        shared.handleError('Picture updated successfully!');
+    } catch (err) {
+        shared.handleError('Error editing picture!');
+    // No matter what happens, ensure saving is done and can be tried again
+    } finally {
+        setSaving(false);
+    }
+}
 
+// Delete picture
+const handleDelete = async (id, deleting, setDeleting) => {
+    if (deleting) return;
+    setDeleting(true);
+    try {
+        const response = await fetch('/deletePicture', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                _id: id
+            })
+        });
+        if(!response.ok) {
+            throw new Error("Something went wrong!");
+        }
+        shared.renderPage(root, <AccountListApp/>);
+    } catch (err) {
+        shared.handleError('Error deleting picture!');
+    // Ensure deleting is done for sake of preventing repeating
+    } finally {
+        setDeleting(false);
+    }
 }
 
 // Show all details of an image, must stay seperate from mainPage due to functionality differences
 const AccountPictureDetails = (props) => {
+    const [picture, setPicture] = useState(null);
+    // States for editable fields
+    const [description, setDescription] = useState('');
+    const [tagsInput, setTagsInput] = useState('');
+    const [isPublic, setIsPublic] = useState(true);
+    // States to prevent spam or repeating
+    const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
 
+    useEffect(() => {
+        const getPicture = async () => {
+            try {
+                const response = await fetch(`/getPictureData?_id=${props.id}`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+                const data = await response.json();
+                if(!response.ok) {
+                    throw new Error("Something went wrong!");
+                }
+                setPicture(data);
+                // Fill form fields with data
+                setDescription(data.description || '');
+                setTagsInput((data.tags || []).join(', '));
+                setIsPublic(data.public);
+            } catch (err) {
+                shared.handleError(err.message || 'Error loading picture!');
+            }
+        };
+        getPicture();
+    }, [props.id]);
+
+    if(picture) {
+        return (
+            <>
+                <div className="pictureDetailsHeader">
+                    <button type="button" onClick={() => shared.renderPage(root, <AccountListApp />)}>Return</button>
+                </div>
+                <div className="pictureDetails">
+                    <h1>{picture.name}</h1>
+                    <img src={picture.image} alt={picture.name} />
+                    <h2>{picture.username}</h2>
+                    <h2>{new Date(picture.createdDate).toLocaleString()}</h2>
+                    <p>Likes: {picture.likes.length}</p>
+                    <form onSubmit={e => {handleAccountPictureEdit(e, props.id, description, tagsInput, isPublic, setPicture, setSaving);}}>
+                        <label htmlFor="pictureDescription">Description:</label>
+                        <input id="pictureDescription" type="text" value={description} onChange={e => setDescription(e.target.value)}/>
+                        <label htmlFor="pictureTags">Tags (comma-separated):</label>
+                        <input id="pictureTags" type="text" value={tagsInput} onChange={e => setTagsInput(e.target.value)}/>
+                        <label htmlFor="picturePublic">Public:</label>
+                        <input id="picturePublic" type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)}/>
+                        <button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Submit Edits'}</button>
+                    </form>
+                    <button type="button" onClick={() => handleDelete(picture._id, deleting, setDeleting)} disabled={deleting}>{deleting ? 'Deleting...' : 'Delete Picture'}</button>
+                </div>
+            </>
+        );
+    }
+
+    return (
+        <>
+            <div className="pictureDetailsHeader">
+                <button type="button" onClick={() => shared.renderPage(root, <AccountListApp/>)}>Return</button>
+            </div>
+            <div className="pictureDetails">
+                <h2>Loading picture...</h2>
+            </div>
+        </>
+    );
 }
 
 // Container for page when showing images & password change section
@@ -173,7 +307,7 @@ const AccountListApp = () => {
             <MakeImageWindow/>
             <ChangePasswordWindow/>
             <AccountPictureSearch triggerReload={triggerReload}/>
-            <shared.PictureList url={"/getPictures"} searchParams={searchParams} reload={reload} Details={AccountPictureDetails}/>
+            <shared.PictureList url={"/getPictures"} root={root} searchParams={searchParams} reload={reload} Details={AccountPictureDetails}/>
         </>
     );
 }
