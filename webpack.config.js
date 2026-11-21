@@ -28,9 +28,9 @@ module.exports = {
     },
     // Used https://webpack.js.org/plugins/split-chunks-plugin
     // This splits bundles into chunks, allowing shared.jsx to remain seperate (instead of being copied into ALL of the other bundles)
-    optimization: {
-        splitChunks: {
-            chunks: 'all',
-        },
-    },
-};
+    // optimization: {
+    //     splitChunks: {
+    //         chunks: 'all',
+    //     },
+    // },
+}

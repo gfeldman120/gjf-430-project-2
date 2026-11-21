@@ -217,7 +217,7 @@ const ListApp = () => {
     return (
         <>
             <PictureSearch triggerReload={triggerReload}/>
-            <shared.PictureList url={"/getMyPictures"} root={root} searchParams={searchParams} reload={reload} Details={PictureDetails}/>
+            <shared.PictureList url={"/getPictures"} root={root} searchParams={searchParams} reload={reload} Details={PictureDetails}/>
         </>
     );
 }

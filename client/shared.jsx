@@ -16,6 +16,9 @@ const PictureList = (props) => {
                     'Content-Type': 'application/json',
                 },
             });
+            if (!response.ok) {
+                throw new Error('Failed to load pictures');
+            }
             const data = await response.json();
             setPictures(data);
             setLoading(false);
@@ -42,7 +45,7 @@ const PictureList = (props) => {
 
     const pictureList = pictures.map(picture => (
         <div key={picture._id} className="picture">
-            <img src={picture.image} alt={picture.name} className="pictureImg" onClick={() => shared.renderPage(props.root, () => <props.Details id={picture._id}/>)}/>
+            <img src={picture.image} alt={picture.name} className="pictureImg" onClick={() => renderPage(props.root, () => <props.Details id={picture._id}/>)}/>
         </div>
     ));
 
@@ -75,7 +78,7 @@ const handleMakePremium = async (setPremium) => {
         }
         setPremium(true);
     } catch (err) {
-        shared.handleError("Something went wrong!");
+        handleError("Something went wrong!");
     }
 }
 
@@ -171,6 +174,8 @@ const renderPage = (root, content) => {
 }
 
 // Make an error appear to the user for 5 seconds
+// Need to define timeout outside of function so it persists
+let errorTimeout;
 const handleError = (message) => {
     const errorBox = document.getElementById('errorBox');
     const errorMessage = document.getElementById('errorBoxMessage');
@@ -209,7 +214,8 @@ const sendPost = async (url, data, handler) => {
   }
 }
 
-module.exports = {
+// Old export syntax required for ES modules
+export {
     PictureList,
     renderPage,
     handleError,

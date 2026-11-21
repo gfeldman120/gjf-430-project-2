@@ -307,7 +307,7 @@ const AccountListApp = () => {
             <MakeImageWindow/>
             <ChangePasswordWindow/>
             <AccountPictureSearch triggerReload={triggerReload}/>
-            <shared.PictureList url={"/getPictures"} root={root} searchParams={searchParams} reload={reload} Details={AccountPictureDetails}/>
+            <shared.PictureList url={"/getMyPictures"} root={root} searchParams={searchParams} reload={reload} Details={AccountPictureDetails}/>
         </>
     );
 }
