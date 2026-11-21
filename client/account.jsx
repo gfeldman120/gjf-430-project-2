@@ -31,6 +31,7 @@ const DeleteAccountWindow = () => {
             <form id="deleteAccountForm" name="deleteAccountForm" onSubmit={handleDeleteAccount} action="/deleteAccount">
                 <label htmlFor="pass">Password: </label>
                 <input id="pass" type="password" name="pass" placeholder="retype password"/>
+                <input className="formSubmit" type="submit" value="Delete account"/>
             </form>
         </div>
     );
@@ -75,7 +76,7 @@ const ChangePasswordWindow = () => {
 }
 
 // Handle creating a picture
-const handlePictureCreation = async (e) => {
+const handlePictureCreation = async (e, onPictureCreated) => {
     e.preventDefault();
     const formData = new FormData(e.target);
     try {
@@ -86,6 +87,8 @@ const handlePictureCreation = async (e) => {
         const data = await response.json();
         if(data) {
             console.log("Picture created");
+            onPictureCrteated();
+            e.target.reset;
         }
     } catch(err) {
         console.log("Error making picture");
@@ -93,10 +96,10 @@ const handlePictureCreation = async (e) => {
 };
 
 // Window for making a picture
-const MakeImageWindow = () => {
+const MakeImageWindow = (props) => {
     return (
         <div>
-            <form id="makePictureForm" name="makePictureForm" onSubmit={handlePictureCreation}>
+            <form id="makePictureForm" name="makePictureForm" onSubmit={(e) => handlePictureCreation(e, props.onPictureCreated)}>
                 <label htmlFor="pictureName">Name:</label>
                 <input id="pictureName" name="name" type="text"/>
                 <label htmlFor="pictureImage">Image:</label>
@@ -341,7 +344,7 @@ const AccountListApp = () => {
 
     return (
         <div>
-            <MakeImageWindow/>
+            <MakeImageWindow onPictureCreated={triggerReload}/>
             <ChangePasswordWindow/>
             <DeleteAccountWindow/>
             <AccountPictureSearch triggerReload={triggerReload}/>
