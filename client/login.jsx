@@ -45,7 +45,7 @@ const handleSignup = (e) => {
 // Window used to login
 const LoginWindow = (props) => {
     return (
-        <>
+        <div>
             <form id="loginForm" name="loginForm" onSubmit={handleLogin} action="/login" method="POST" className="mainForm">
                 <label htmlFor="user">Username: </label>
                 <input id="user" type="text" name="username" placeholder="username"/>
@@ -54,14 +54,14 @@ const LoginWindow = (props) => {
                 <input className="formSubmit" type="submit" value="Sign in"/>
             </form>
             <button type="button" onClick={() => shared.renderPage(root, <SignupWindow/>)}>Create An Account</button>
-        </>
+        </div>
     );
 }
 
 // Window used to sign up
 const SignupWindow = (props) => {
     return (
-        <>
+        <div>
             <form id="signupForm" name="signupForm" onSubmit={handleSignup} action="/signup" method="POST" className="mainForm">
                 <label htmlFor="user">Username: </label>
                 <input id="user" type="text" name="username" placeholder="username"/>
@@ -72,7 +72,7 @@ const SignupWindow = (props) => {
                 <input className="formSubmit" type="submit" value="Create Account"/>
             </form>
             <button type="button" onClick={() => shared.renderPage(root, <LoginWindow/>)}>Use An Existing Account</button>
-        </>
+        </div>
     );
 }
 

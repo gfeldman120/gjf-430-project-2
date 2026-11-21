@@ -46,37 +46,39 @@ const handleSearch = async (e, onParamsGot) => {
 const PictureSearch = (props) => {
     // Used https://www.w3schools.com/tags/tag_select.asp to figure out select
     return(
-        <form id="pictureSearch"
-            onSubmit={(e) => handleSearch(e, props.triggerReload)}
-            name="pictureSearch"
-            className="pictureSearch"
-        >
-            <label htmlFor="pictureName">Name: </label>
-            <input id="pictureName" type="text" name="name" placeholder="Picture name"/>
-            <label htmlFor="pictureUsername">Poster's username: </label>
-            <input id="pictureUsername" type="text" name="username" placeholder="Picture username"/>
-            <label htmlFor="pictureTags">Tags: </label>
-            <input id="pictureTags" type="text" name="tags" placeholder="Tags, separated by commas"/>
-            <label htmlFor="pictureMinLikes">Minimum Likes: </label>
-            <input id="pictureMinLikes" type="number" min="0" name="minLikes"/>
-            <label htmlFor="pictureDate">Date: </label>
-            <input id="pictureDate" type="date" name="date"/>
-            <label htmlFor="pictureDateFilter">Filter: </label>
-            <select id="pictureDateFilter" name="dateFilter">
-                <option value="">No Date Filter</option>
-                <option value="same">Same Date</option>
-                <option value="before">Before Date</option>
-                <option value="after">After Date</option>
-            </select>
-            <label htmlFor="pictureOrder">Order: </label>
-            <select id="pictureOrder" name="order">
-                <option value="dateDescending">Date, Descending</option>
-                <option value="dateAscending">Date, Ascending</option>
-                <option value="nameA-Z">Name, A-Z</option>
-                <option value="nameZ-A">Name, Z-A</option>
-            </select>
-            <input id="pictureSubmit" type="submit" value="Search"/>
-        </form>
+        <div>
+            <form id="pictureSearch"
+                onSubmit={(e) => handleSearch(e, props.triggerReload)}
+                name="pictureSearch"
+                className="pictureSearch"
+            >
+                <label htmlFor="pictureName">Name: </label>
+                <input id="pictureName" type="text" name="name" placeholder="Picture name"/>
+                <label htmlFor="pictureUsername">Poster's username: </label>
+                <input id="pictureUsername" type="text" name="username" placeholder="Picture username"/>
+                <label htmlFor="pictureTags">Tags: </label>
+                <input id="pictureTags" type="text" name="tags" placeholder="Tags, separated by commas"/>
+                <label htmlFor="pictureMinLikes">Minimum Likes: </label>
+                <input id="pictureMinLikes" type="number" min="0" name="minLikes"/>
+                <label htmlFor="pictureDate">Date: </label>
+                <input id="pictureDate" type="date" name="date"/>
+                <label htmlFor="pictureDateFilter">Filter: </label>
+                <select id="pictureDateFilter" name="dateFilter">
+                    <option value="">No Date Filter</option>
+                    <option value="same">Same Date</option>
+                    <option value="before">Before Date</option>
+                    <option value="after">After Date</option>
+                </select>
+                <label htmlFor="pictureOrder">Order: </label>
+                <select id="pictureOrder" name="order">
+                    <option value="dateDescending">Date, Descending</option>
+                    <option value="dateAscending">Date, Ascending</option>
+                    <option value="nameA-Z">Name, A-Z</option>
+                    <option value="nameZ-A">Name, Z-A</option>
+                </select>
+                <input id="pictureSubmit" type="submit" value="Search"/>
+            </form>
+        </div>
     );
 }
 
@@ -166,7 +168,7 @@ const PictureDetails = (props) => {
 
     if(picture) {
         return (
-            <>
+            <div>
                 <div className="pictureDetailsHeader">
                     <button type="button" onClick={() => shared.renderPage(root, <ListApp/>)}>Return</button>
                 </div>
@@ -188,18 +190,18 @@ const PictureDetails = (props) => {
                     </ul>
                     <p>{picture.description}</p>
                 </div>
-            </>
+            </div>
         );
     }
     return (
-        <>
+        <div>
             <div className="pictureDetailsHeader">
                 <button type="button" onClick={() => shared.renderPage(root, <ListApp/>)}>Return</button>
             </div>
             <div className="pictureDetails">
                 <h2>Loading picture...</h2>
             </div>
-        </>
+        </div>
     );
 }
 
@@ -215,10 +217,10 @@ const ListApp = () => {
     };
 
     return (
-        <>
+        <div>
             <PictureSearch triggerReload={triggerReload}/>
             <shared.PictureList url={"/getPictures"} root={root} searchParams={searchParams} reload={reload} Details={PictureDetails}/>
-        </>
+        </div>
     );
 }
 

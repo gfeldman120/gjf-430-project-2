@@ -1,5 +1,7 @@
 const models = require('../models');
 const Account = models.Account;
+// Picture imported for account deletion because it deletes all of an account's photos
+const Picture = models.Picture;
 
 // Log the user out
 const logout = (req, res) => {
@@ -122,6 +124,25 @@ const getLoggedIn = (req, res) => {
     }
 }
 
+// Delete the account, then logout
+const deleteAccount = async (req, res) => {
+   try {
+        const account = await Account.findById(req.session.account._id);
+        const valid = await Account.checkPassword(pass, account.password);
+        if(!valid) {
+            return res.status(401).json({ error: "Incorrect current password!" });
+        }
+        // Before deleting account, delete all pictures from account
+        await Picture.deleteMany({ owner: account._id });
+        // Delete account
+        await Account.findByIdAndDelete(account._id);
+        return logout(req, res);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: 'An error occured!' });
+    } 
+}
+
 module.exports = {
     login,
     logout,
@@ -130,4 +151,5 @@ module.exports = {
     makePremium,
     getPremium,
     getLoggedIn,
+    deleteAccount,
 }

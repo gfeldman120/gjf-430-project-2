@@ -50,9 +50,9 @@ const PictureList = (props) => {
     ));
 
     return (
-        <>
+        <div>
             {pictureList}
-        </>
+        </div>
     );
 }
 
@@ -149,10 +149,10 @@ const Navigation = (props) => {
 }
 
 // Error box used on all pages
-const ErrorBox = () => {
+const MessageBox = () => {
     return (
-        <div id="errorBox" style={{ display: "none" }}>
-            <p id="errorBoxMessage"></p>
+        <div id="messageBox" style={{ display: "none" }}>
+            <p id="messageBoxMessage"></p>
         </div>
     );
 }
@@ -160,11 +160,11 @@ const ErrorBox = () => {
 // Display a page: Surround content with elements found on every page (but not part of handlebars due to these elements being dynamic in some way)
 const Page = (props) => {
     return (
-        <>
+        <div>
             <Navigation/>
             {props.content}
-            <ErrorBox/>
-        </>
+            <MessageBox/>
+        </div>
     );
 }
 
@@ -173,19 +173,25 @@ const renderPage = (root, content) => {
     root.render(<Page content={content}/>);
 }
 
-// Make an error appear to the user for 5 seconds
-// Need to define timeout outside of function so it persists
-let errorTimeout;
+// Show a message in the style of an error
 const handleError = (message) => {
-    const errorBox = document.getElementById('errorBox');
-    const errorMessage = document.getElementById('errorBoxMessage');
-    if (!errorBox || !errorMessage) return;
+    showMessage(message, "#FFB3B3")
+}
+
+// Make a message appear to the user for 5 seconds
+// Need to define timeout outside of function so it persists
+let messageTimeout;
+const showMessage = (message, color) => {
+    const messageBox = document.getElementById('messageBox');
+    const messageBoxMessage = document.getElementById('messageBoxMessage');
+    if (!messageBox || !messageBoxMessage) return;
+    messageBox.style.backgroundColor = color;
     // If error timeout exists, stop it >> Show the block, wait 5 seconds, hide it
-    clearTimeout(errorTimeout);
-    errorMessage.textContent = message;
-    errorBox.style.display = 'block';
-    errorTimeout = setTimeout(() => {
-        errorBox.style.display = 'none';
+    clearTimeout(messageTimeout);
+    messageBoxMessage.textContent = message;
+    messageBox.style.display = 'block';
+    messageTimeout = setTimeout(() => {
+        messageBox.style.display = 'none';
     }, 5000);
 }
 
