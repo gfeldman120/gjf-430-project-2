@@ -60,9 +60,29 @@ const HomeLink = (props) => {
     );
 }
 
+// Handle making an account premium
+const handleMakePremium = async (setPremium) => {
+    try {
+        const response = await fetch('/makePremium', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+        });
+        const data = await response.json();
+        if (!response.ok) {
+            throw new Error("Something went wrong!");
+        }
+        setPremium(true);
+    } catch (err) {
+        shared.handleError("Something went wrong!");
+    }
+}
+
 // Navigation bar, consistent across all screens
 const Navigation = (props) => {
     const [loggedIn, setLoggedIn] = useState(false);
+    const [isPremium, setPremium] = useState(false);
 
     // Default to not logged in and renders as such upon mounting, re-renders if loggedIn changes (if request succeeds and returns loggedIn being true)
     useEffect(() => {
@@ -78,11 +98,38 @@ const Navigation = (props) => {
         }
         getLoggedInFromServer();
     }, []);
+    // If logged in, check premium status (used for button on navbar)
+    useEffect(() => {
+        if (!loggedIn) return;
+        const getPremiumFromServer = async () => {
+            const response = await fetch('/getPremium', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+            const data = await response.json();
+            if (!response.ok) {
+                throw new Error("Something went wrong!");
+            }
+            setPremium(data.premium);
+        }
+        getPremiumFromServer();
+    }, [loggedIn]);
 
     if(loggedIn) {
+        // Only show premium button if not already premium
         return (
             <nav>
                 <HomeLink/>
+                {!isPremium && (
+                    // Works due to conditional rendering: https://react.dev/learn/conditional-rendering
+                    <div className="navlink"><button type="button" onClick={() => handleMakePremium(setPremium)}>Upgrade to Premium</button></div>
+                )}
+                {isPremium && (
+                    // Works due to conditional rendering: https://react.dev/learn/conditional-rendering
+                    <p>(Using Premium Account)</p>
+                )}
                 <div className="navlink"><a href="/accountPage">Account</a></div>
                 <div className="navlink"><a href="/logout">Log out</a></div>
             </nav>

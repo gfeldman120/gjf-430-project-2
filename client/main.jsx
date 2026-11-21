@@ -178,6 +178,7 @@ const PictureDetails = (props) => {
                     <div>
                         {loggedIn && !isOwner && (
                             // Background color changing is temporary, idealy should use different images
+                            // Works due to conditional rendering: https://react.dev/learn/conditional-rendering
                             <button type="button" onClick={() => handleLike(props.id, setLiked, setLikesCount, setIsLiking)} disabled={isLiking} style={{backgroundColor: liked ? 'blue' : 'red', color: 'white',}}>LIKE</button>
                         )}
                         <p>{likesCount}</p>

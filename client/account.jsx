@@ -273,7 +273,7 @@ const AccountPictureDetails = (props) => {
                         <input id="picturePublic" type="checkbox" checked={isPublic} onChange={e => setIsPublic(e.target.checked)}/>
                         <button type="submit" disabled={saving}>{saving ? 'Saving...' : 'Submit Edits'}</button>
                     </form>
-                    <button type="button" onClick={() => handleDelete(picture._id, deleting, setDeleting)} disabled={deleting}>{deleting ? 'Deleting...' : 'Delete Picture'}</button>
+                    <button type="button" onClick={() => handleDelete(props.id, deleting, setDeleting)} disabled={deleting}>{deleting ? 'Deleting...' : 'Delete Picture'}</button>
                 </div>
             </>
         );
