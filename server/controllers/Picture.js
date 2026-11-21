@@ -95,13 +95,10 @@ const getPictures = async (req, res, mine = false) => {
             };
         }
         // Username isn't stored, search via account ID
-        if(req.query.username && !mine) {
+        if(req.query.username && mine !== true) {
             const accounts = await Account.find({ 
                 username: { $regex: req.query.username, $options: 'i' }
-            }).select('_id');
-            if (accounts.length === 0) {
-                return res.json([]);
-            }
+            }).select('_id').lean();
             query.owner = { $in: accounts.map(account => account._id) };
         }
         // If getting myPictures, use this account's name for the owner, otherwise only find public pictures
@@ -121,12 +118,13 @@ const getPictures = async (req, res, mine = false) => {
         else {
             query.public = true;
         }
-        // Tags
+        // Tags (all tags required)
         if(req.query.tags) {
+            // Making an array of regex expressions, used https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp
+            const tags = req.query.tags.split(',').map(tag => new RegExp(tag.trim(), 'i'));
             query.tags = {
-                $regex: req.query.tags,
-                $options: "i",
-            }
+                $all: tags
+            };
         }
         // Likes
         const minLikes = Number(req.query.minLikes);
