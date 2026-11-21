@@ -85,9 +85,9 @@ const handlePictureCreation = async (e, onPictureCreated) => {
             body: formData,
         });
         const data = await response.json();
-        if(data) {
+        if(data && response.ok) {
             console.log("Picture created");
-            onPictureCrteated();
+            onPictureCreated();
             e.target.reset;
         }
     } catch(err) {
