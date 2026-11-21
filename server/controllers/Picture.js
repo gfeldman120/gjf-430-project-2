@@ -1,8 +1,15 @@
 const models = require('../models');
 const Picture = models.Picture;
 const Account = models.Account;
-// Premium max upload limit (10MB)
-const maxFreeUpload = 10 * 1024 * 1024;
+// Premium max upload limit (8MB)
+const maxFreeUpload = 8 * 1024 * 1024;
+// Mimetypes allowed for an upload
+const mimetypesAllowed = [
+    'image/jpeg',
+    'image/png',
+    'image/gif',
+    'image/webp'
+];
 
 // Make a picture
 const makePicture = async (req, res) => {
@@ -10,6 +17,9 @@ const makePicture = async (req, res) => {
         // Required fields
         if(!req.files || !req.files.image) {
             return res.status(400).json({ error: 'An image is required!' });
+        }
+        if(!mimetypesAllowed.includes(req.files.image.mimetype)) {
+            return res.status(400).json({ error: 'Only image files (.jpeg, .png, .gif, .webp) are supported!' });
         }
         const pictureData = {
             name: req.files.image.name,
@@ -47,7 +57,10 @@ const makePicture = async (req, res) => {
             createdDate: newPicture.createdDate,
         });
     } catch (err) {
-        console.log(err);
+        // If image is too big for MongoDB, return that
+        if (err.name === 'RangeError' && err.message === 'offset is out of bounds') {
+            return res.status(400).json({ error: 'File size exceeds MongoDB\'s 16 MB limit!' });
+        }
         // If both name and image are the same, duplicate
         if(err.code === 11000) {
             return res.status(400).json({ error: 'Picture already exists!' });

@@ -15,11 +15,6 @@ const handleDeleteAccount = (e) => {
         return false;
     }
 
-    if(newPass !== newPass2) {
-        shared.handleError('Passwords do not match!');
-        return false;
-    }
-
     shared.sendPost(e.target.action, {pass});
     return false;
 }

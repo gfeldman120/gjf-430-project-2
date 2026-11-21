@@ -99,6 +99,8 @@ const makePremium = async (req, res) => {
         const account = await Account.findById(req.session.account._id);
         account.premium = true;
         await account.save();
+        // Need to update the session so that the button doesn't appear
+        req.session.account.premium = true;
         return res.status(201).json({ message: "Account made premium!" });
     } catch (err) {
         console.log(err);
@@ -128,7 +130,7 @@ const getLoggedIn = (req, res) => {
 const deleteAccount = async (req, res) => {
    try {
         const account = await Account.findById(req.session.account._id);
-        const valid = await Account.checkPassword(pass, account.password);
+        const valid = await Account.checkPassword(req.body.pass, account.password);
         if(!valid) {
             return res.status(401).json({ error: "Incorrect current password!" });
         }

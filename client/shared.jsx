@@ -85,7 +85,7 @@ const handleMakePremium = async (setPremium) => {
 // Navigation bar, consistent across all screens
 const Navigation = (props) => {
     const [loggedIn, setLoggedIn] = useState(false);
-    const [isPremium, setPremium] = useState(false);
+    const [isPremium, setPremium] = useState(null);
 
     // Default to not logged in and renders as such upon mounting, re-renders if loggedIn changes (if request succeeds and returns loggedIn being true)
     useEffect(() => {
@@ -116,6 +116,7 @@ const Navigation = (props) => {
                 throw new Error("Something went wrong!");
             }
             setPremium(data.premium);
+            console.log(data.premium);
         }
         getPremiumFromServer();
     }, [loggedIn]);
@@ -125,11 +126,11 @@ const Navigation = (props) => {
         return (
             <nav>
                 <HomeLink/>
-                {!isPremium && (
+                {isPremium === false && (
                     // Works due to conditional rendering: https://react.dev/learn/conditional-rendering
                     <div className="navlink"><button type="button" onClick={() => handleMakePremium(setPremium)}>Upgrade to Premium</button></div>
                 )}
-                {isPremium && (
+                {isPremium === true && (
                     // Works due to conditional rendering: https://react.dev/learn/conditional-rendering
                     <p>(Using Premium Account)</p>
                 )}
