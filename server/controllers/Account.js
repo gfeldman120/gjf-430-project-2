@@ -1,16 +1,6 @@
 const models = require('../models');
 const Account = models.Account;
 
-// Display the login page
-const loginPage = (req, res) => {
-    return res.render('login');
-}
-
-// Display the account page
-const accountPage = (req, res) => {
-    return res.render('accountPage');
-}
-
 // Log the user out
 const logout = (req, res) => {
     // Destroy has a callback to ensure that the redirect occurs after the session is destroyed: https://github.com/expressjs/session
@@ -58,7 +48,7 @@ const signup = async (req, res) => {
         const newAccount = new Account({username, password: hash});
         await newAccount.save();
         req.session.account = Account.toAPI(newAccount);
-        return res.json({ redirect: '/accountPage' });
+        return res.json({ redirect: '/mainPage' });
     } catch (err) {
         console.log(err);
         if(err.code === 11000) {
@@ -115,21 +105,30 @@ const makePremium = async (req, res) => {
     }
 }
 
+// Check if this account is premium
+const getPremium = async (req, res) => {
+    try {
+        return res.status(200).json({ premium: req.session.account.premium ? true : false });
+    } catch {
+        return res.status(500).json({ error: "Server error!" });
+    }
+}
+
 // Check if an account is logged in
 const getLoggedIn = (req, res) => {
-    if(req.session.account) {
-        return res.status(200).json({ loggedIn: true });
+    try {
+        return res.status(200).json({ loggedIn: req.session.account ? true : false });
+    } catch {
+        return res.status(500).json({ error: "Server error!" });
     }
-    return res.status(200).json({ loggedIn: false });
 }
 
 module.exports = {
-    loginPage,
-    accountPage,
     login,
     logout,
     signup,
     changePassword,
     makePremium,
+    getPremium,
     getLoggedIn,
 }

@@ -4,11 +4,6 @@ const Account = models.Account;
 // Premium max upload limit (10MB)
 const maxFreeUpload = 10 * 1024 * 1024;
 
-// Dispaly the main page
-const mainPage = async (req, res) => {
-    res.render('app');
-};
-
 // Make a picture
 const makePicture = async (req, res) => {
     try {
@@ -183,14 +178,15 @@ const getPictureData = async (req, res) => {
         const query = {
             _id: req.query._id,
         };
-        // Rest of function
-        let pictureData = await Picture.findOne(query).lean().exec();
+        // .populate() allows using the owner property to also add the username to the result: https://mongoosejs.com/docs/populate.html
+        let pictureData = await Picture.findOne(query).populate('owner', 'username').lean().exec();
         if(!pictureData) {
             return res.status(404).json({ error: "Picture not found! "});
         }
         pictureData = {
             ...pictureData,
             image: convertToData(pictureData.mimetype, pictureData.image),
+            username: pictureData.owner.username
         };
         return res.json(pictureData);
     } catch (err) {
@@ -321,7 +317,6 @@ const convertToData = (mimetype, image) => {
 }
 
 module.exports = {
-    mainPage,
     makePicture,
     getMyPictures,
     getPictures,

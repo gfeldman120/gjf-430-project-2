@@ -1,4 +1,3 @@
-const helper = require('./helper.js');
 const shared = require('./shared.jsx');
 const React = require('react');
 const { useState, useEffect } = React;
@@ -12,16 +11,16 @@ const handleChangePassword = (e) => {
     const newPass2 = e.target.querySelector('#newPass2').value;
 
     if(!pass || !newPass || !newPass2) {
-        helper.handleError('All fields are required!');
+        shared.handleError('All fields are required!');
         return false;
     }
 
     if(newPass !== newPass2) {
-        helper.handleError('Passwords do not match!');
+        shared.handleError('Passwords do not match!');
         return false;
     }
 
-    helper.sendPost(e.target.action, {pass, newPass, newPass2});
+    shared.sendPost(e.target.action, {pass, newPass, newPass2});
     return false;
 }
 
@@ -72,7 +71,7 @@ const MakeImageWindow = () => {
     );
 }
 
-const handleAccountPictureSearch = async (e, onPicturesGot) => {
+const handleAccountPictureSearch = (e, onParamsGot) => {
     e.preventDefault();
 
     const name = e.target.querySelector("#pictureName").value.trim();
@@ -103,7 +102,7 @@ const handleAccountPictureSearch = async (e, onPicturesGot) => {
     params.append("order", order);
     params.append("publicity", publicity);
 
-    onPicturesGot(params.toString());
+    onParamsGot(params.toString());
 }
 
 // Form used for searching pictures, similar to mainPage but less fields
@@ -146,6 +145,11 @@ const AccountPictureSearch = (props) => {
             <input id="pictureSubmit" type="submit" value="Search"/>
         </form>
     );
+}
+
+// Handle editing of picture
+const handleAccountPictureEdit = async (e, onParamsGot) => {
+
 }
 
 // Show all details of an image, must stay seperate from mainPage due to functionality differences

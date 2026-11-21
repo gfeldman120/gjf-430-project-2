@@ -16,6 +16,7 @@ const router = (app) => {
     // Account
     app.get('/logout', mid.requiresLogin, controllers.Account.logout);
     app.get('/getLoggedIn', mid.requiresSecure, controllers.Account.getLoggedIn);
+    app.get('/getPremium', mid.requiresLogin, controllers.Account.getPremium);
     
     app.post('/signup', mid.requiresSecure, mid.requiresLogout, controllers.Account.signup);
     app.post('/login', mid.requiresSecure, mid.requiresLogout, controllers.Account.login);
@@ -23,9 +24,12 @@ const router = (app) => {
     app.post('/makePremium', mid.requiresLogin, controllers.Account.makePremium);
 
     // Pages
-    app.get('/mainPage', mid.requiresSecure, controllers.Picture.mainPage);
-    app.get('/accountPage', mid.requiresLogin, controllers.Account.accountPage);
-    app.get('/loginPage', mid.requiresSecure, mid.requiresLogout, controllers.Account.loginPage);
-    app.get('/', mid.requiresSecure, controllers.Picture.mainPage);
+    app.get('/mainPage', mid.requiresSecure, controllers.Pages.mainPage);
+    app.get('/accountPage', mid.requiresLogin, controllers.Pages.accountPage);
+    app.get('/loginPage', mid.requiresSecure, mid.requiresLogout, controllers.Pages.loginPage);
+    app.get('/', mid.requiresSecure, controllers.Pages.mainPage);
+
+    // Fallback
+    app.get('/*wild', controllers.Pages.mainPage);
 };
 module.exports = router;

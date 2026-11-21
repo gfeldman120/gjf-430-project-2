@@ -1,4 +1,3 @@
-const helper = require('./helper.js');
 const shared = require('./shared.jsx');
 const React = require('react');
 const { useState, useEffect } = React;
@@ -7,7 +6,7 @@ const { createRoot } = require('react-dom/client');
 let root;
 
 // Handle searching
-const handleSearch = async (e, onPicturesGot) => {
+const handleSearch = async (e, onParamsGot) => {
     e.preventDefault();
 
     const name = e.target.querySelector("#pictureName").value.trim();
@@ -40,7 +39,7 @@ const handleSearch = async (e, onPicturesGot) => {
     }
     params.append("order", order);
 
-    onPicturesGot(params.toString());
+    onParamssGot(params.toString());
 }
 
 // Form used for searching pictures
@@ -174,7 +173,7 @@ const PictureDetails = (props) => {
                 <div className="pictureDetails">
                     <h1>{picture.name}</h1>
                     <img src={picture.image} alt={picture.name}/>
-                    <h2>{picture.owner}</h2>
+                    <h2>{picture.username}</h2>
                     <h2>{picture.createdDate}</h2>
                     <div>
                         {loggedIn && !isOwner && (

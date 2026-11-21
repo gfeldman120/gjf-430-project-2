@@ -98,12 +98,22 @@ const Navigation = (props) => {
     }
 }
 
+// Error box used on all pages
+const ErrorBox = () => {
+    return (
+        <div id="errorBox" style={{ display: "none" }}>
+            <p id="errorBoxMessage"></p>
+        </div>
+    );
+}
+
 // Display a page: Surround content with elements found on every page (but not part of handlebars due to these elements being dynamic in some way)
 const Page = (props) => {
     return (
         <>
             <Navigation/>
             {props.content}
+            <ErrorBox/>
         </>
     );
 }
@@ -113,7 +123,48 @@ const renderPage = (root, content) => {
     root.render(<Page content={content}/>);
 }
 
+// Make an error appear to the user for 5 seconds
+const handleError = (message) => {
+    const errorBox = document.getElementById('errorBox');
+    const errorMessage = document.getElementById('errorBoxMessage');
+    if (!errorBox || !errorMessage) return;
+    // If error timeout exists, stop it >> Show the block, wait 5 seconds, hide it
+    clearTimeout(errorTimeout);
+    errorMessage.textContent = message;
+    errorBox.style.display = 'block';
+    errorTimeout = setTimeout(() => {
+        errorBox.style.display = 'none';
+    }, 5000);
+}
+
+// Send a generic POST request based on inputs, allows for redirects & display of errors
+const sendPost = async (url, data, handler) => {
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+
+  const result = await response.json();
+
+  if(result.redirect) {
+    window.location = result.redirect;
+  }
+
+  if(result.error) {
+    handleError(result.error);
+  }
+
+  if(handler) {
+    handler(result);
+  }
+}
+
 module.exports = {
     PictureList,
     renderPage,
+    handleError,
+    sendPost,
 }

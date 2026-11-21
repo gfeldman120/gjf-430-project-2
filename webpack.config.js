@@ -2,9 +2,10 @@ const path = require('path');
 
 module.exports = {
     entry: {
-        app: './client/mainPage.jsx',
+        shared: './client/shared.jsx',
+        main: './client/main.jsx',
         login: './client/login.jsx',
-        account: './client/accountPage.jsx',
+        account: './client/account.jsx',
     },
     module: {
         rules: [
