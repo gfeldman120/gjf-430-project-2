@@ -45,7 +45,7 @@ const PictureList = (props) => {
 
     const pictureList = pictures.map(picture => (
         <div key={picture._id} className="picture">
-            <img src={picture.image} alt={picture.name} className="pictureImg" onClick={() => renderPage(props.root, () => <props.Details id={picture._id}/>)}/>
+            <img src={picture.image} alt={picture.name} className="pictureImg" onClick={() => renderPage(props.root, <props.Details id={picture._id}/>)}/>
         </div>
     ));
 
@@ -191,27 +191,33 @@ const handleError = (message) => {
 
 // Send a generic POST request based on inputs, allows for redirects & display of errors
 const sendPost = async (url, data, handler) => {
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
+    const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+    });
 
-  const result = await response.json();
+    // If redirected, do this before trying to parse JSON to avoid errors
+    if (response.redirected) {
+        window.location.href = response.url;
+        return;
+    }
 
-  if(result.redirect) {
-    window.location = result.redirect;
-  }
+    const result = await response.json();
 
-  if(result.error) {
-    handleError(result.error);
-  }
+    if(result.redirect) {
+        window.location = result.redirect;
+    }
 
-  if(handler) {
-    handler(result);
-  }
+    if(result.error) {
+        handleError(result.error);
+    }
+
+    if(handler) {
+        handler(result);
+    }
 }
 
 // Old export syntax required for ES modules

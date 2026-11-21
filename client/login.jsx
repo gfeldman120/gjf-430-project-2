@@ -1,6 +1,5 @@
 const shared = require('./shared.jsx');
 const React = require('react');
-const { useState, useEffect } = React;
 const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
@@ -70,7 +69,7 @@ const SignupWindow = (props) => {
                 <input id="pass" type="password" name="pass" placeholder="password"/>
                 <label htmlFor="pass2">Password: </label>
                 <input id="pass2" type="password" name="pass2" placeholder="retype password"/>
-                <input className="formSubmit" type="submit" value="Sign in"/>
+                <input className="formSubmit" type="submit" value="Create Account"/>
             </form>
             <button type="button" onClick={() => shared.renderPage(root, <LoginWindow/>)}>Use An Existing Account</button>
         </>

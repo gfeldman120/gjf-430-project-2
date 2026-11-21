@@ -59,13 +59,11 @@ const makePicture = async (req, res) => {
 // Get the photos from the current user
 // Allows private photos: Middleware ensures that this is only called if signed in
 const getMyPictures = (req, res) => {
-    req.query.myPictures = true;
-    req.query.username = req.session.account.username;
-    return getPictures(req, res);
+    return getPictures(req, res, true);
 }
 
 // Get ONLY images based on filters
-const getPictures = async (req, res) => {
+const getPictures = async (req, res, mine = false) => {
     try {
         const query = {};
         // Filters
@@ -84,7 +82,7 @@ const getPictures = async (req, res) => {
             };
         }
         // Username isn't stored, search via account ID
-        if(req.query.username) {
+        if(req.query.username && !mine) {
             const accounts = await Account.find({ 
                 username: { $regex: req.query.username, $options: 'i' }
             }).select('_id');
@@ -94,7 +92,8 @@ const getPictures = async (req, res) => {
             query.owner = { $in: accounts.map(account => account._id) };
         }
         // If getting myPictures, use this account's name for the owner, otherwise only find public pictures
-        if(req.query.myPictures) {
+        // Need === to ensure default value works
+        if(mine === true) {
             query.owner = req.session.account._id;
             // Only filter publicity if owned by this account, no default case because default means show all
             switch(req.query.publicity) {

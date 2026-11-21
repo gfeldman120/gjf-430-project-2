@@ -168,7 +168,7 @@ const PictureDetails = (props) => {
         return (
             <>
                 <div className="pictureDetailsHeader">
-                    <button type="button" onClick={() => shared.renderPage(root, ListApp)}>Return</button>
+                    <button type="button" onClick={() => shared.renderPage(root, <ListApp/>)}>Return</button>
                 </div>
                 <div className="pictureDetails">
                     <h1>{picture.name}</h1>
@@ -194,7 +194,7 @@ const PictureDetails = (props) => {
     return (
         <>
             <div className="pictureDetailsHeader">
-                <button type="button" onClick={() => shared.renderPage(root, ListApp)}>Return</button>
+                <button type="button" onClick={() => shared.renderPage(root, <ListApp/>)}>Return</button>
             </div>
             <div className="pictureDetails">
                 <h2>Loading picture...</h2>

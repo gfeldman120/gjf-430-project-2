@@ -5,9 +5,9 @@ const { createRoot } = require('react-dom/client');
 // Root is defined here to allow functions to access it
 let root;
 
-
 // Handle changing of the password
 const handleChangePassword = (e) => {
+    e.preventDefault();
     const pass = e.target.querySelector('#pass').value;
     const newPass = e.target.querySelector('#newPass').value;
     const newPass2 = e.target.querySelector('#newPass2').value;
@@ -256,7 +256,7 @@ const AccountPictureDetails = (props) => {
         return (
             <>
                 <div className="pictureDetailsHeader">
-                    <button type="button" onClick={() => shared.renderPage(root, <AccountListApp />)}>Return</button>
+                    <button type="button" onClick={() => shared.renderPage(root, <AccountListApp/>)}>Return</button>
                 </div>
                 <div className="pictureDetails">
                     <h1>{picture.name}</h1>
